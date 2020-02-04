@@ -1,4 +1,5 @@
 # embedded-systems
 Coursework
 
-Group Name: TBC
+Group Name: WillCodeForBeer
+Members: Matt, Chris, Becky, Sean
