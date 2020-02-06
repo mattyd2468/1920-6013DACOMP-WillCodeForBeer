@@ -2,42 +2,24 @@
 #include <pins_arduino.h>
 
 enum State {
-  LED_ON,
-  LED_OFF
+  ON,
+  OFF
 };
 
-State current;
+State LEDcurrent;
 const int LED_PIN = LED_BUILTIN;
-const int LED_DELAY = 1000;
-unsigned long lastChangeTime;
 
-boolean timeDiff(unsigned long start, int specifiedDelay) {
-  return (millis()-start >= specifiedDelay);
-}
 
 void setup() {
-  current = LED_OFF;
+  LEDcurrent = ON;
   pinMode(LED_PIN, OUTPUT);
-  lastChangeTime=0;
+  Serial.begin(115200);
+  Serial.println("Power on! ");
+
 }
 
 void loop() {
-  State old = current;
-  switch (current){
-    case LED_OFF:
-      digitalWrite(LED_PIN, LOW);
-      if (timeDiff(lastChangeTime, LED_DELAY))
-        current = LED_ON;
-    break;
 
-    case LED_ON:
-      digitalWrite(LED_PIN, HIGH);
-      if (timeDiff(lastChangeTime, LED_DELAY))
-        current = LED_OFF;
-    break;
-  }
-
-  if (old != current)
-    lastChangeTime = millis();
+	digitalWrite(LED_PIN, HIGH);
 }
 
