@@ -11,7 +11,7 @@ const int LED_PIN = LED_BUILTIN;
 
 
 void setup() {
-  LEDcurrent = ON;
+  LEDcurrent = OFF;
   pinMode(LED_PIN, OUTPUT);
   Serial.begin(115200);
   Serial.println("Power on! ");
@@ -19,7 +19,11 @@ void setup() {
 }
 
 void loop() {
+	if (LEDcurrent == OFF){
+		digitalWrite(LED_PIN, HIGH);
+		LEDcurrent = ON;
+		Serial.println("Power on! ");
+	}
 
-	digitalWrite(LED_PIN, HIGH);
 }
 
