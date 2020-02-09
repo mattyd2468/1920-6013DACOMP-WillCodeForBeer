@@ -14,12 +14,15 @@ I have colour co-ordinated the wires for this but if you want different colours 
 
 GRN - row1 (-) (black wire)
 
-#RGB light:
+
+#RGB light 1:
+
 pin 10 - B1 (RED)
 
 pin 9 - B3 (GREEN)
 
 pin 8 - B4 (BLUE)
+
 
 c1 - f1 (1k resistor)
 
@@ -27,17 +30,53 @@ c3 - f3 (1k resistor)
 
 c4 - f4 (1k resistor)
 
-h2 - GND (black wire)
+h2 - row 4(+) (black wire)
 
 i1 - i4 (RGB LED) - 1 pin is longer than the others, this is the ground pin so goes into i2
 
-#Potentiometer:
-row 20 (+) - a20 (white wire)
+#RGB light 2:
 
-PIN A0 - a21 (blue wire)
+pin 7 - B8 (RED)
+pin 6 - B10 (GREEN)
 
-row 24 (-) - a22 (black wire GND)
+pin 5 - B11 (BLUE)
 
-b21-d20-d22 (potentiometor)
+c8 - f1 (1k resistor)
 
-e20-f20 (orange wire)
+c10 - f3 (1k resistor)
+
+c11 - f4 (1k resistor)
+
+h9 - row 9(+) (black wire)
+
+i8 - i11 (RGB LED) - 1 pin is longer than the others, this is the ground pin so goes into i9
+
+#RGB light 3:
+
+pin 4 - B14 (RED)
+
+pin 3 - B16 (GREEN)
+
+pin 2 - B17 (BLUE)
+
+c14 - f14 (1k resistor)
+
+c16 - f16 (1k resistor)
+
+c17 - f17 (1k resistor)
+
+h15 - row 15(+) (black wire)
+
+i14 - i17 (RGB LED) - 1 pin is longer than the others, this is the ground pin so goes into i15
+
+
+#POTENTIOMETER:
+
+row 27 (+) - a27 (white wire)
+
+PIN A0 - a28 (yellow wire)
+
+row 30 (-) - a29 (black wire GND)
+
+b28-d27-d29 (potentiometor)
+
