@@ -21,15 +21,13 @@ int Thermometer::readSensor(int potPin, int potVal) {
 
 void Thermometer::setLEDColour(int potVal, LED* led) {
 
-	potVal = (potVal / 1023.0) * 100; // convert the value of potVal to a percentage
-
-	if (potVal >= 34 && potVal <= 60) { // Lowest third of the potentiometer's range (34%) GREEN
+	if (potVal >= 18 && potVal <= 23) { // If the value is between 18 and 23 degrees - GREEN
 		led->setColour(0, 255, 0); // green
 		led->currentColour = LEDColour::GREEN;
 		if (led->colourHasChanged()) {
 			Serial.println("Colour has changed to green!");
 		}
-	} else if (potVal >= 25 && potVal <= 75) { // Middle third of potentiometer's range (341-681) YELLOW
+	} else if (potVal >= 16 && potVal <= 27) { // If the value is between 16 and 27 degrees - YELLOW
 		led->setColour(255, 255, 0); // yellow
 		led->currentColour = LEDColour::YELLOW;
 		if (led->colourHasChanged()) {
