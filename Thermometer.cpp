@@ -19,15 +19,25 @@ int Thermometer::readSensor(int potPin, int potVal) {
 	return potVal;
 }
 
-void Thermometer::setLEDColour(int potVal, LED* led) {
+int calculateTempInCelcius(int potVal) {
+	double Temp;
+	Temp = log(((10240000 / potVal) - 10000));
+	Temp = 1/ (0.001129148+ (0.000234125 + (0.0000000876741 * Temp * Temp)) * Temp);
+	Temp = Temp - 273.15;              // Convert Kelvin to Celsius
+	return Temp;
+}
 
-	if (potVal >= 18 && potVal <= 23) { // If the value is between 18 and 23 degrees - GREEN
+void Thermometer::setLEDColour(int potVal, LED *led) {
+
+	potVal = calculateTempInCelcius(potVal);
+
+	if (potVal >= 34 && potVal <= 60) { // If the value is between 18 and 23 degrees - GREEN
 		led->setColour(0, 255, 0); // green
 		led->currentColour = LEDColour::GREEN;
 		if (led->colourHasChanged()) {
 			Serial.println("Colour has changed to green!");
 		}
-	} else if (potVal >= 16 && potVal <= 27) { // If the value is between 16 and 27 degrees - YELLOW
+	} else if (potVal >= 25 && potVal <= 75) { // If the value is between 16 and 27 degrees - YELLOW
 		led->setColour(255, 255, 0); // yellow
 		led->currentColour = LEDColour::YELLOW;
 		if (led->colourHasChanged()) {
