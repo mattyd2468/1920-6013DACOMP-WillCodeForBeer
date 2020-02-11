@@ -6,14 +6,14 @@
 class Thermometer {
 
 public:
-	int potVal = 0;
+	double potVal = 0;
 	int potPin = A0;
 	LED *led;
 
 	Thermometer();
 	Thermometer(int potPin);
-	int readSensor(int potPin, int potVal);
-	void setLEDColour(int potVal, LED* led);
+	int readSensor(int potPin, double potVal);
+	void setLEDColour(double potVal, LED* led);
 	void setColour(int red, int blue, int green);
 };
 #endif
