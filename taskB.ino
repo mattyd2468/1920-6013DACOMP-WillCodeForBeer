@@ -1,4 +1,4 @@
-#include "Arduino.h"
+/*#include "Arduino.h"
 #include "Thermometer.h"
 #include "Humidity.h"
 #include "Air.h"
@@ -38,3 +38,4 @@ void loop() {
 
 	delay(1000); // delay for 1 second
 }
+*/
