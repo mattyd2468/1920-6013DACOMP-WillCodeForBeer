@@ -11,17 +11,10 @@ Humidity::Humidity(int potPin) {
 	pinMode(this->potPin, INPUT);
 	this->potVal = 0;
 
-	this->led = new LED(7, 6, 5);
-}
-
-int Humidity::readSensor(int potPin, int potVal) {
-	potVal = analogRead(potPin); // read the potentiometer value at the input pin
-	return potVal;
+	this->led = new LED(19, 18, 17);
 }
 
 void Humidity::setLEDColour(int potVal, LED* led) {
-
-	potVal = (potVal / 1023.0) * 100; // convert the value of potVal to a percentage
 
 	if (potVal >= 34 && potVal <= 60) { // Lowest third of the potentiometer's range (34%) GREEN
 		led->setColour(0, 255, 0); // green

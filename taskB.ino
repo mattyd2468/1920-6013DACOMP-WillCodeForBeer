@@ -1,40 +1,36 @@
 #include "Arduino.h"
 #include "Thermometer.h"
 #include "Humidity.h"
-#include "Air.h"
 #include "LED.h"
+#include <DHTesp.h>
 
-int potPin = A0; // Potentiometer output connected to analog pin A0
-int potVal = 0; // Variable to store the input from the potentiometer
-Thermometer*  thermometer = NULL;
+#define DHTPIN 4 // the pin value for the DHT11 sensor
+#define DHTTYPE DHT11
 
-int humPin = A1; // Potentiometer output connected to analog pin A1
-int humVal = 0; // Variable to store the input from the potentiometer
-Humidity*  humidity = NULL;
+int potVal = 0; // Variable to store temperature value
+int humVal = 0; // Variable to store the humidity value
 
-int airPin = A2; // Potentiometer output connected to analog pin A2
-int airVal = 0; // Variable to store the input from the potentiometer
-Air*  airSensor = NULL;
+Thermometer *thermometer = NULL;
+Humidity *humidity = NULL;
+DHTesp dht; // object to store the DHT11 sensor
+TempAndHumidity tempHum; // the object to store the temperature and humidity values
 
 void setup() {
-	thermometer = new Thermometer(potPin);
-	humidity = new Humidity(humPin);
-	airSensor = new Air(airPin);
+	thermometer = new Thermometer(DHTPIN);
+	humidity = new Humidity(DHTPIN);
+
 	Serial.begin(115200);
+	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 }
 
 void loop() {
-	// thermometer sensor
-	potVal = thermometer->readSensor(potPin, potVal); // read the thermometer sensor value at the input pin
-	thermometer->setLEDColour(potVal, thermometer->led);
 
-	// humidity sensor
-	humVal = humidity->readSensor(humPin, humVal); // read the humidity sensor value at the input pin
-	humidity->setLEDColour(humVal, humidity->led);
+	// get the temperature and humidity readings from the DHT11 sensor
+	tempHum = dht.getTempAndHumidity();
 
-	// air sensor
-	airVal = airSensor->readSensor(airPin, airVal); // read the air sensor value at the input pin
-	airSensor->setLEDColour(potVal, airSensor->led);
+	// set LED colours for temp and humidity sensor
+	thermometer->setLEDColour(tempHum.temperature, thermometer->led);
+	humidity->setLEDColour(tempHum.humidity, humidity->led);
 
-	delay(1000); // delay for 1 second
+	delay(2000); // delay for 2 seconds - this is needed for the DHT11 sensor as a minimum
 }
