@@ -16,23 +16,23 @@ Humidity::Humidity(int potPin) {
 
 void Humidity::setLEDColour(int potVal, LED* led) {
 
-	if (potVal >= 34 && potVal <= 60) { // Lowest third of the potentiometer's range (34%) GREEN
+	if (potVal >= 34 && potVal <= 60) { // Humidity is between 34% and 60% - GREEN
 		led->setColour(0, 255, 0); // green
 		led->currentColour = LEDColour::GREEN;
 		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to green!");
+			Serial.println("Humidity status has changed - status is now green!");
 		}
-	} else if (potVal >= 25 && potVal <= 75) { // Middle third of potentiometer's range (341-681) YELLOW
+	} else if (potVal >= 25 && potVal <= 75) { // Humidity is between 25% and 75% - YELLOW
 		led->setColour(255, 255, 0); // yellow
 		led->currentColour = LEDColour::YELLOW;
 		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to Amber!");
+			Serial.println("Humidity status has changed - status is now amber!");
 		}
-	} else { // Upper third of potentiometer"s range (682-1023) RED
+	} else { // Humidity is in RED level
 		led->setColour(255, 0, 0); // red
 		led->currentColour = LEDColour::RED;
 		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to red!");
+			Serial.println("Humidity status has changed - status is now red!");
 		}
 	}
 }

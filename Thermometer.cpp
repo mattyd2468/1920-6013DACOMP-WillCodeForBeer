@@ -20,21 +20,21 @@ void Thermometer::setLEDColour(double potVal, LED *led) {
 		led->setColour(0, 255, 0); // green
 		led->currentColour = LEDColour::GREEN;
 		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to green!");
+			Serial.println("Temperature status has changed - status is now green!");
 		}
 		return;
 	} else if (potVal >= 16 && potVal <= 27) { // If the value is between 16 and 27 degrees - YELLOW
 		led->setColour(255, 255, 0); // yellow
 		led->currentColour = LEDColour::YELLOW;
 		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to Amber!");
+			Serial.println("Temperature status has changed - status is now amber!");
 		}
 		return;
-	} else { // Upper third of potentiometer"s range (682-1023) RED
+	} else { // Otherwise - RED
 		led->setColour(255, 0, 0); // red
 		led->currentColour = LEDColour::RED;
 		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to red!");
+			Serial.println("Temperature status has changed - status is now red!");
 		}
 	}
 }
