@@ -7,12 +7,11 @@ class Humidity {
 
 public:
 	int potVal = 0;
-	int potPin = A1;
+	int potPin = 4;
 	LED *led;
 
 	Humidity();
 	Humidity(int potPin);
-	int readSensor(int potPin, int potVal);
 	void setLEDColour(int potVal, LED* led);
 	void setColour(int red, int blue, int green);
 };

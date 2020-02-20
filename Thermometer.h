@@ -3,16 +3,17 @@
 
 #include <arduino.h>
 #include "LED.h"
+#include "DHTesp.h"
 class Thermometer {
 
 public:
 	double potVal = 0;
-	int potPin = A0;
+	int potPin = 35;
 	LED *led;
 
 	Thermometer();
 	Thermometer(int potPin);
-	int readSensor(int potPin, double potVal);
+	int readSensor(DHTesp dht);
 	void setLEDColour(double potVal, LED* led);
 	void setColour(int red, int blue, int green);
 };
