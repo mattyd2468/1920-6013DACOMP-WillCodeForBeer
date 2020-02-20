@@ -32,14 +32,29 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>DHTesp-master</name>
+			<type>2</type>
+			<location>C:/Users/Matty/Downloads/DHTesp-master</location>
+		</link>
+		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.8.2/cores/arduino</locationURI>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/cores/esp32</locationURI>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.8.2/variants/standard</locationURI>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/variants/esp32</locationURI>
+		</link>
+		<link>
+			<name>libraries/ESP32</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/ESP32</locationURI>
+		</link>
+		<link>
+			<name>libraries/Ticker</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/Ticker</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

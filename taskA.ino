@@ -1,53 +1,51 @@
 #include "Arduino.h"
 #include "Thermometer.h"
 #include "Humidity.h"
-#include "Air.h"
 #include "LED.h"
+#include <DHTesp.h>
 
-String errorMsg = "Error | There is an issue with the";
-int potPin = A0; // Potentiometer output connected to analog pin A0
-int potVal = 0; // Variable to store the input from the potentiometer
+#define DHTPIN 4 // the pin value for the DHT11 sensor
+#define DHTTYPE DHT11
+
+bool firstLoop = true;
+int potVal = 0; // Variable to store temperature value
+int humVal = 0; // Variable to store the humidity value
+
 Thermometer *thermometer = NULL;
-
-int humPin = A1; // Potentiometer output connected to analog pin A1
-int humVal = 0; // Variable to store the input from the potentiometer
 Humidity *humidity = NULL;
-
-int airPin = A2; // Potentiometer output connected to analog pin A2
-int airVal = 0; // Variable to store the input from the potentiometer
-Air *airSensor = NULL;
+DHTesp dht; // object to store the DHT11 sensor
+TempAndHumidity tempHum; // the object to store the temperature and humidity values
 
 void setup() {
-	thermometer = new Thermometer(potPin);
-	humidity = new Humidity(humPin);
-	airSensor = new Air(airPin);
-	Serial.begin(115200);
-	Serial.println("Power on!");
+	thermometer = new Thermometer(DHTPIN);
+	humidity = new Humidity(DHTPIN);
+
+	Serial.begin(115200); // @suppress("Ambiguous problem")
+	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 }
 
 void loop() {
-	//Check values are being received. Display suitable error
-	if (potVal == 0) {
-		Serial.println(errorMsg + "Thermometer");
-	}
-	if (humVal == 0) {
-		Serial.println(errorMsg + "Humidity Sensor");
-	}
-	if (airVal == 0){
-			Serial.println(errorMsg + "Air Sensor");
+	//if first loop run power on test
+	if (firstLoop) {
+		Serial.println("Power on!");
+		tempHum = dht.getTempAndHumidity();
+		if (tempHum.temperature == 0 || tempHum.temperature > 100){
+			Serial.println("Temperature Error");
 		}
+		if (tempHum.humidity == 0 || tempHum.humidity == 100){
+					Serial.println("Humidity Error");
+				}
+		firstLoop = false;
+	}
+	//else run normal system
+	else {
+		// get the temperature and humidity readings from the DHT11 sensor
+		tempHum = dht.getTempAndHumidity();
 
-	// thermometer sensor
-	potVal = thermometer->readSensor(potPin, potVal); // read the thermometer sensor value at the input pin
-	thermometer->setLEDColour(potVal, thermometer->led);
+		// set LED colours for temp and humidity sensor
+		thermometer->setLEDColour(tempHum.temperature, thermometer->led);
+		humidity->setLEDColour(tempHum.humidity, humidity->led);
 
-	// humidity sensor
-	humVal = humidity->readSensor(humPin, humVal); // read the humidity sensor value at the input pin
-	humidity->setLEDColour(humVal, humidity->led);
-
-	// air sensor
-	airVal = airSensor->readSensor(airPin, airVal); // read the air sensor value at the input pin
-	airSensor->setLEDColour(potVal, airSensor->led);
-
-	delay(1000); // delay for 1 second
+		delay(2000); // delay for 2 seconds - this is needed for the DHT11 sensor as a minimum
+	}
 }
