@@ -3,16 +3,16 @@
 
 #include <arduino.h>
 #include "LED.h"
-class Humidity {
 
+class Humidity {
 public:
+
 	int potVal = 0;
 	int potPin = 4;
-	LED *led;
+	LED* led;
 
 	Humidity();
-	Humidity(int potPin);
-	void setLEDColour(int potVal, LED* led);
-	void setColour(int red, int blue, int green);
+	Humidity(int potPin, LED *led);
+	HumidityStatus calculateStatus(int potVal, LED *led);
 };
 #endif

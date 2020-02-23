@@ -6,35 +6,39 @@ Thermometer::Thermometer() {
 	// do nothing
 }
 
-Thermometer::Thermometer(int potPin) {
+Thermometer::Thermometer(int potPin, LED* led) {
 	this->potPin = potPin;
 	pinMode(this->potPin, INPUT);
 	this->potVal = 0;
 
-	this->led = new LED(23, 22, 21);
+	this->led = led;
 }
 
-void Thermometer::setLEDColour(double potVal, LED *led) {
+TemperatureStatus Thermometer::calculateStatus(int potVal, LED *led) {
+	led->lastTempStatus = led->currentTempStatus;
 
 	if (potVal >= 18 && potVal <= 23) { // If the value is between 18 and 23 degrees - GREEN
-		led->setColour(0, 255, 0); // green
 		led->currentColour = LEDColour::GREEN;
-		if (led->colourHasChanged()) {
+		led->currentTempStatus = TemperatureStatus::GREEN;
+		if (led->tempStatusHasChanged()) {
 			Serial.println("Temperature status has changed - status is now green!");
 		}
-		return;
+		return TemperatureStatus::GREEN;
 	} else if (potVal >= 16 && potVal <= 27) { // If the value is between 16 and 27 degrees - YELLOW
-		led->setColour(255, 255, 0); // yellow
 		led->currentColour = LEDColour::YELLOW;
-		if (led->colourHasChanged()) {
+		led->currentTempStatus = TemperatureStatus::AMBER;
+
+		if (led->tempStatusHasChanged()) {
 			Serial.println("Temperature status has changed - status is now amber!");
 		}
-		return;
+		return TemperatureStatus::AMBER;
 	} else { // Otherwise - RED
-		led->setColour(255, 0, 0); // red
 		led->currentColour = LEDColour::RED;
-		if (led->colourHasChanged()) {
+		led->currentTempStatus = TemperatureStatus::RED;
+
+		if (led->tempStatusHasChanged()) {
 			Serial.println("Temperature status has changed - status is now red!");
 		}
+		return TemperatureStatus::RED;
 	}
 }
