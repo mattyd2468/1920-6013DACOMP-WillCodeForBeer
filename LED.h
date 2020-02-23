@@ -1,6 +1,10 @@
 #ifndef LED_H_
 #define LED_H_
 
+#include "TemperatureStatus.h"
+#include "HumidityStatus.h"
+#include <DHTesp.h>
+
 enum class LEDColour {
 	GREEN, YELLOW, RED
 };
@@ -20,9 +24,19 @@ public:
 	LEDColour lastColour;
 	LEDColour currentColour;
 
+	TemperatureStatus lastTempStatus;
+	TemperatureStatus currentTempStatus;
+	HumidityStatus lastHumStatus;
+	HumidityStatus currentHumStatus;
+
 	LED();
 	LED(int redPin, int bluePin, int greenPin);
+
+	boolean tempStatusHasChanged();
+	boolean humStatusHasChanged();
+
+	void setLEDColour(TemperatureStatus tempStatus, HumidityStatus humStatus);
+private:
 	void setColour(int redVal, int blueVal, int greenVal);
-	boolean colourHasChanged();
 };
 #endif
