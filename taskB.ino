@@ -1,4 +1,4 @@
-#include "Arduino.h"
+/*#include "Arduino.h"
 #include "Thermometer.h"
 #include "Humidity.h"
 #include "LED.h"
@@ -39,3 +39,4 @@ void loop() {
 	led->setLEDColour(tempStatus, humStatus);
 	delay(2000); // delay for 2 seconds - this is needed for the DHT11 sensor as a minimum
 }
+*/

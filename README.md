@@ -6,6 +6,24 @@ Members: Matt, Chris, Becky, Sean
 
 When pulling changes from stash you will find that you will get compile errors. To fix this you need to go into the spec.d file and change the file location to your local. Also if you go into Project>Properties make sure that under C/C++ Build>Environment that any paths are correct (they will be set to Matt's laptop as he created the project so you will need to change them for your own local
 
+<table>
+  <tr>
+    <th>Hardware Version</th>
+    <th>Software Version</th>
+    <th>Schematics file name</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Task A</td>
+    <td>taskA_schematics.pdf</td>
+  </tr>
+  <tr>
+    <td>example</td>
+    <td>example</td>
+    <td>example</td>
+  </tr>
+</table>
+
 ##Circuit for Task B:
 I have colour co-ordinated the wires for this but if you want different colours feel free
 #Power:
