@@ -1,45 +1,46 @@
 #include "Humidity.h"
 #include "LED.h"
 #include <Arduino.h>
+#include <DHTesp.h>
 
 Humidity::Humidity() {
 	// do nothing
 }
 
-Humidity::Humidity(int potPin) {
+Humidity::Humidity(int potPin, LED* led) {
 	this->potPin = potPin;
 	pinMode(this->potPin, INPUT);
 	this->potVal = 0;
 
-	this->led = new LED(7, 6, 5);
+	this->led = led;
 }
 
-int Humidity::readSensor(int potPin, int potVal) {
-	potVal = analogRead(potPin); // read the potentiometer value at the input pin
-	return potVal;
-}
+HumidityStatus Humidity::calculateStatus(int potVal, LED* led) {
+	led->lastHumStatus = led->currentHumStatus;
 
-void Humidity::setLEDColour(int potVal, LED* led) {
-
-	potVal = (potVal / 1023.0) * 100; // convert the value of potVal to a percentage
-
-	if (potVal >= 34 && potVal <= 60) { // Lowest third of the potentiometer's range (34%) GREEN
-		led->setColour(0, 255, 0); // green
+	if (potVal >= 34 && potVal <= 60) { // Humidity is between 34% and 60% - GREEN
 		led->currentColour = LEDColour::GREEN;
-		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to green!");
+		led->currentHumStatus = HumidityStatus::GREEN;
+		if (led->humStatusHasChanged()) {
+			Serial.println("Humidity status has changed - status is now green!");
 		}
-	} else if (potVal >= 25 && potVal <= 75) { // Middle third of potentiometer's range (341-681) YELLOW
-		led->setColour(255, 255, 0); // yellow
+		return HumidityStatus::GREEN;
+	} else if (potVal >= 25 && potVal <= 75) { // Humidity is between 25% and 75% - YELLOW
 		led->currentColour = LEDColour::YELLOW;
-		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to Amber!");
+		led->currentHumStatus = HumidityStatus::AMBER;
+
+		if (led->humStatusHasChanged()) {
+			Serial.println("Humidity status has changed - status is now amber!");
 		}
-	} else { // Upper third of potentiometer"s range (682-1023) RED
-		led->setColour(255, 0, 0); // red
+		return HumidityStatus::AMBER;
+
+	} else { // Humidity is in RED level
 		led->currentColour = LEDColour::RED;
-		if (led->colourHasChanged()) {
-			Serial.println("Colour has changed to red!");
+		led->currentHumStatus = HumidityStatus::RED;
+
+		if (led->humStatusHasChanged()) {
+			Serial.println("Humidity status has changed - status is now red!");
 		}
+		return HumidityStatus::RED;
 	}
 }
