@@ -29,7 +29,32 @@ TempAndHumidity tempHum; // the object to store the temperature and humidity val
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus; // object to store the humidity status
 
-//taskD method
+
+
+void setup() {
+	thermometer = new Thermometer(DHTPIN, led);
+	humidity = new Humidity(DHTPIN, led);
+
+	Serial.begin(115200); // @suppress("Ambiguous problem")
+	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
+
+	//taskD setup
+		// Setting pins and default values
+		pinMode(MOTION_SENSOR, INPUT);
+		pinMode(MOTION_INDICATOR, OUTPUT);
+		digitalWrite(MOTION_SENSOR, LOW);
+
+		// Waiting for the PIR Sensor to initialise
+		Serial.print("Initialising PIR Sensor ");
+		for (int i = 0; i < calibrationTime; i++) {
+			Serial.print(".");
+			delay(1000);
+		}
+		Serial.println("|");
+		Serial.println("SENSOR ACTIVE");
+		delay(50);
+}
+
 void motionSensor() {
 	if (digitalRead(MOTION_SENSOR) == HIGH) {
 		digitalWrite(MOTION_INDICATOR, HIGH); // TODO: LED is on while motion is sensed
@@ -66,54 +91,37 @@ void motionSensor() {
 	}
 }
 
-void setup() {
-	thermometer = new Thermometer(DHTPIN, led);
-	humidity = new Humidity(DHTPIN, led);
+void powerOnTest() {
+	Serial.println("Power on!");
+	tempHum = dht.getTempAndHumidity();
+	if (tempHum.temperature == 0 || tempHum.temperature > 100 || tempHum.temperature == nan) {
+		Serial.println("Temperature Error");
+	}
+	if (tempHum.humidity == 0 || tempHum.humidity == 100 || tempHum.humidity == nan) {
+		Serial.println("Humidity Error");
+	}
+	firstLoop = false;
+}
 
-	Serial.begin(115200); // @suppress("Ambiguous problem")
-	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
-
-	//taskD setup
-		// Setting pins and default values
-		pinMode(MOTION_SENSOR, INPUT);
-		pinMode(MOTION_INDICATOR, OUTPUT);
-		digitalWrite(MOTION_SENSOR, LOW);
-
-		// Waiting for the PIR Sensor to initialise
-		Serial.print("Initialising PIR Sensor ");
-		for (int i = 0; i < calibrationTime; i++) {
-			Serial.print(".");
-			delay(1000);
-		}
-		Serial.println("|");
-		Serial.println("SENSOR ACTIVE");
-		delay(50);
+void tempAndHumSensor() {
+	// get the temperature and humidity readings from the DHT11 sensor
+	tempHum = dht.getTempAndHumidity();
+	// set LED colours for temp and humidity sensor
+	tempStatus = thermometer->calculateStatus(tempHum.temperature, led);
+	humStatus = humidity->calculateStatus(tempHum.humidity, led);
+	led->setLEDColour(tempStatus, humStatus);
+	delay(2000); // delay for 2 seconds - this is needed for the DHT11 sensor as a minimum
 }
 
 void loop() {
 	//If it is the first loop run power on test
 	if (firstLoop) {
-		Serial.println("Power on!");
-		tempHum = dht.getTempAndHumidity();
-		if (tempHum.temperature == 0 || tempHum.temperature > 100) {
-			Serial.println("Temperature Error");
-		}
-		if (tempHum.humidity == 0 || tempHum.humidity == 100) {
-			Serial.println("Humidity Error");
-		}
-		firstLoop = false;
+		powerOnTest();
 	}
 	//Else run normal system
 	else {
 		// get the temperature and humidity readings from the DHT11 sensor
-		tempHum = dht.getTempAndHumidity();
-
-		// set LED colours for temp and humidity sensor
-		tempStatus = thermometer->calculateStatus(tempHum.temperature, led);
-		humStatus = humidity->calculateStatus(tempHum.humidity, led);
-
-		led->setLEDColour(tempStatus, humStatus);
-		delay(2000); // delay for 2 seconds - this is needed for the DHT11 sensor as a minimum
+		tempAndHumSensor();
 		motionSensor(); //Call taskD code
 	}
 }
