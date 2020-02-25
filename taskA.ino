@@ -4,29 +4,28 @@
 #include "LED.h"
 #include <DHTesp.h>
 
+//Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
+const int MOTION_SENSOR = 18;    	// PIR sensor pin
+const int MOTION_INDICATOR = 12;	// TODO: LED pin, LED is not needed for task D! Change to buzzer maybe?
+LED *led = new LED(23, 22, 21); // the LED which shows the status of the sensors, pins 23,22,21
+
+//Variable initialisation
 bool firstLoop = true; //Variable to store if it is the first loop or not
 int potVal = 0; // Variable to store temperature value
 int humVal = 0; // Variable to store the humidity value
-
-//taskD variables
-long unsigned int lowTime;
-const long unsigned int pauseTime = 5000;	//TODO: 600,000 is 10 mins
-
+long unsigned int lowTime; //Variable for PIR sensor low time
+const long unsigned int pauseTime = 5000;	//TODO: 600,000 is 10 mins currently 5 secs
 boolean isDelayActive = true;	// Prevents duplicate output to console
 boolean getLowTime;
-
-const int MOTION_SENSOR = 18;    	// PIR sensor pin
-const int MOTION_INDICATOR = 12;	// TODO: LED pin, LED is not needed for task D!
 const int calibrationTime = 30; 	// 30 seconds for initialising the PIR Sensor
 
+//Setting up the objects
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
 DHTesp dht; // object to store the DHT11 sensor
 TempAndHumidity tempHum; // the object to store the temperature and humidity values
-LED *led = new LED(23, 22, 21); // the LED which shows the status of the sensors, pins 23,22,21
-
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus; // object to store the humidity status
 
