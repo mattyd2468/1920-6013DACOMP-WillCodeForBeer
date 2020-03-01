@@ -14,8 +14,8 @@ When pulling changes from stash you will find that you will get compile errors. 
   </tr>
   <tr>
     <td>1</td>
-    <td>Task A</td>
-    <td>taskA_schematics.pdf</td>
+    <td>v1.0</td>
+    <td>Task B v1.0 – 1 DHT11 sensor with 1 RGB LED page 8</td>
   </tr>
   <tr>
     <td>example</td>
