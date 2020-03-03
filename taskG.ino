@@ -69,8 +69,8 @@ void motionSensor() {
 
 		// Ensures we don't output OCCUPIED until the sensor has since been LOW
 		if (isDelayActive) {
-			colour = led->currentColour;
-			buzz(colour);
+			colour = led->currentColour; //gets current colour of LED (This could go inside buzz method)
+			buzz(colour);//call buzz method passing in current colour
 			isDelayActive = false;
 			Serial.println("---");
 			Serial.print("OCCUPIED at ");
