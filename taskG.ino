@@ -68,6 +68,7 @@ void motionSensor() {
 
 		// Ensures we don't output OCCUPIED until the sensor has since been LOW
 		if (isDelayActive) {
+			buzzFor1Second();
 			isDelayActive = false;
 			Serial.println("---");
 			Serial.print("OCCUPIED at ");
@@ -142,7 +143,5 @@ void loop() {
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
 		motionSensor(); //Call taskD code;
-		//buzzFor1Second();
-		//delay(2000);
 	}
 }
