@@ -24,6 +24,7 @@ const int calibrationTime = 30; // 30 seconds for initialising the PIR Sensor
 int freq = 2000; //buzzer
 int channel = 0; //buzzer
 int resolution = 8; //buzzer
+int dutyCycle = 128;
 
 //Setting up the objects
 Thermometer *thermometer = NULL;
@@ -78,6 +79,7 @@ void motionSensor() {
 	}
 
 	if (digitalRead(MOTION_SENSOR) == LOW) {
+		ledcWrite(channel, 0);
 		digitalWrite(MOTION_INDICATOR, LOW); // LED is off when motion isn't sensed
 
 		// Getting the time where motion stopped being picked up.
@@ -100,15 +102,17 @@ void motionSensor() {
 void powerOnTest() {
 	Serial.println("Power on!");
 	tempHum = dht.getTempAndHumidity();
+	float temp = tempHum.temperature;
+	float hum = tempHum.humidity;
 
-	/*
-	 if (tempHum.temperature == 0 || tempHum.temperature > 100 || tempHum.temperature == nan) {
+	//DHT11 maximum values. Need to add nan check
+	 if (temp < 0  || temp > 50) {
 	 Serial.println("Temperature Error");
 	 }
-	 if (tempHum.humidity == 0 || tempHum.humidity == 100 || tempHum.humidity == nan) {
-	 Serial.println("Humidity Error");
-	 }
-	 */
+	 if (hum < 20  || hum > 80) {
+		 Serial.println("Humidity Error");
+	}
+
 	firstLoop = false;
 }
 
@@ -122,6 +126,12 @@ void tempAndHumSensor() {
 	delay(2000); // delay for 2 seconds - this is needed for the DHT11 sensor as a minimum
 }
 
+void buzzFor1Second() {
+	ledcWrite(channel, dutyCycle);
+	delay(1000);
+	ledcWrite(channel, 0);
+}
+
 void loop() {
 	//If it is the first loop run power on test
 	if (firstLoop) {
@@ -129,10 +139,10 @@ void loop() {
 	}
 	//Else run normal system
 	else {
-		ledcWrite(channel, 0);
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
-		motionSensor(); //Call taskD code
-		ledcWrite(channel, 200);
+		motionSensor(); //Call taskD code;
+		//buzzFor1Second();
+		//delay(2000);
 	}
 }
