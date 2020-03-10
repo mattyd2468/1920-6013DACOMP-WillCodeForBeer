@@ -3,6 +3,7 @@
 
 #include <arduino.h>
 #include "LED.h"
+#include "HumidityStatus.h"
 
 class Humidity {
 public:
@@ -14,5 +15,6 @@ public:
 	Humidity();
 	Humidity(int potPin, LED *led);
 	HumidityStatus calculateStatus(int potVal, LED *led);
+	String getHumStatus(HumidityStatus humStatus);
 };
 #endif

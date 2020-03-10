@@ -3,6 +3,7 @@
 
 #include <arduino.h>
 #include "LED.h"
+#include "TemperatureStatus.h"
 
 class Thermometer {
 public:
@@ -13,5 +14,6 @@ public:
 	Thermometer();
 	Thermometer(int potPin, LED *led);
 	TemperatureStatus calculateStatus(int potVal, LED *led);
+	String getTempStatus(TemperatureStatus currentStatus);
 };
 #endif

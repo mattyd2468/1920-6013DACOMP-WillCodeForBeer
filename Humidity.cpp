@@ -44,3 +44,18 @@ HumidityStatus Humidity::calculateStatus(int potVal, LED* led) {
 		return HumidityStatus::RED;
 	}
 }
+
+
+/**
+ * This method will return the current Humidity status as a string
+ */
+String Humidity::getHumStatus(HumidityStatus humStatus) {
+	if (humStatus == HumidityStatus::GREEN) {
+		return "GREEN";
+	} else if (humStatus == HumidityStatus::AMBER) {
+		return "AMBER";
+	} else {
+		return "RED";
+	}
+}
+
