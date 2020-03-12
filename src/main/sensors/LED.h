@@ -1,8 +1,8 @@
 #ifndef LED_H_
 #define LED_H_
 
-#include "TemperatureStatus.h"
-#include "HumidityStatus.h"
+#include "../enums/TemperatureStatus.h"
+#include "../enums/HumidityStatus.h"
 #include <DHTesp.h>
 
 enum class LEDColour {

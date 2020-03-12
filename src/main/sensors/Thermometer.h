@@ -1,9 +1,9 @@
 #ifndef THERMOMETER_H_
 #define THERMOMETER_H_
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "LED.h"
-#include "TemperatureStatus.h"
+#include "../enums/TemperatureStatus.h"
 
 class Thermometer {
 public:

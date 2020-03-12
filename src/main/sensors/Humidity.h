@@ -3,7 +3,7 @@
 
 #include <arduino.h>
 #include "LED.h"
-#include "HumidityStatus.h"
+#include "../enums/HumidityStatus.h"
 
 class Humidity {
 public:

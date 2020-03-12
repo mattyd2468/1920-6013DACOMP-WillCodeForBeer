@@ -60,7 +60,6 @@ void LED::setColour(int redVal, int greenVal, int blueVal) {
 	ledcWrite(greenChannel, greenVal);
 	ledcWrite(blueChannel, blueVal);
 
-	lastColour = currentColour;
 }
 
 boolean LED::tempStatusHasChanged() {

@@ -2,7 +2,7 @@
 #define PIR_H_
 
 #include <arduino.h>
-#include "PIRStatus.h"
+#include "../enums/PIRStatus.h"
 
 class PIR {
 public:
