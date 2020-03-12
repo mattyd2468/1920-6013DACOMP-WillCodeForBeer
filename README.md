@@ -6,6 +6,14 @@ Members: Matt, Chris, Becky, Sean
 
 When pulling changes from stash you will find that you will get compile errors. To fix this you need to go into the spec.d file and change the file location to your local. Also if you go into Project>Properties make sure that under C/C++ Build>Environment that any paths are correct (they will be set to Matt's laptop as he created the project so you will need to change them for your own local
 
+### PlatformIO Configuration!
+
+So, i got platformIO working for our project (and the set up is bliss compared to eclipse). So, you will need to add the applicable libraries again, but only 1 needs adding, to do this go to platformio home, libraries, and search for 'DHT esp' then install the dhtespx library, this should be the only set up you need. Hopefully the rest will work automatically. 
+
+You first need to install PlatformIO which will also install VS code for you, once this is done do the above and then you need to go to Terminal > Run Task.. and look for PlatformIO Build, once that has been a success you want Terminal > Run Task.. and look for PlatformIO Upload. To get your serial monitor up you want to run the PlatformIO monitor task. It should just work as the config is set up for it (or should be!)
+
+### Versioning
+
 <table>
   <tr>
     <th>Hardware Version</th>
@@ -23,78 +31,3 @@ When pulling changes from stash you will find that you will get compile errors. 
     <td>example</td>
   </tr>
 </table>
-
-##Circuit for Task B:
-I have colour co-ordinated the wires for this but if you want different colours feel free
-#Power:
-
-5V -  row 1 (+) (white wire)
-
-GRN - row1 (-) (black wire)
-
-
-#RGB light 1:
-
-pin 10 - B1 (RED)
-
-pin 9 - B3 (GREEN)
-
-pin 8 - B4 (BLUE)
-
-
-c1 - f1 (1k resistor)
-
-c3 - f3 (1k resistor)
-
-c4 - f4 (1k resistor)
-
-h2 - row 4(+) (black wire)
-
-i1 - i4 (RGB LED) - 1 pin is longer than the others, this is the ground pin so goes into i2
-
-#RGB light 2:
-
-pin 7 - B8 (RED)
-pin 6 - B10 (GREEN)
-
-pin 5 - B11 (BLUE)
-
-c8 - f1 (1k resistor)
-
-c10 - f3 (1k resistor)
-
-c11 - f4 (1k resistor)
-
-h9 - row 9(+) (black wire)
-
-i8 - i11 (RGB LED) - 1 pin is longer than the others, this is the ground pin so goes into i9
-
-#RGB light 3:
-
-pin 4 - B14 (RED)
-
-pin 3 - B16 (GREEN)
-
-pin 2 - B17 (BLUE)
-
-c14 - f14 (1k resistor)
-
-c16 - f16 (1k resistor)
-
-c17 - f17 (1k resistor)
-
-h15 - row 15(+) (black wire)
-
-i14 - i17 (RGB LED) - 1 pin is longer than the others, this is the ground pin so goes into i15
-
-
-#POTENTIOMETER:
-
-row 27 (+) - a27 (white wire)
-
-PIN A0 - a28 (yellow wire)
-
-row 30 (-) - a29 (black wire GND)
-
-b28-d27-d29 (potentiometor)
-
