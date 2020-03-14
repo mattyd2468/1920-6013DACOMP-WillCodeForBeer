@@ -141,9 +141,9 @@ void buzz() {
  * This will make a noise if last noise was less than 30 seconds ago
  */
 void audibleAmberAlert() {
-	if (timeDiff(alertMillis, RED_ALERT_SOUND_DELAY)) {
+	if (timeDiff(alertMillis, AMBER_ALERT_SOUND_DELAY)) {
 		alertMillis = millis();
-		Serial.println("Amber buzzzzzz");
+		Serial.println("Amber buzz");
 		buzz();
 	}
 }
@@ -152,9 +152,9 @@ void audibleAmberAlert() {
  * This will make a noise if last noise was less than 5 seconds ago
  */
 void audibleRedAlert() {
-	if (timeDiff(alertMillis, AMBER_ALERT_SOUND_DELAY)) {
+	if (timeDiff(alertMillis, RED_ALERT_SOUND_DELAY)) {
 		alertMillis = millis();
-		Serial.println("Red buzzzzzz");
+		Serial.println("Red buzz");
 		buzz();
 	}
 }
@@ -166,7 +166,6 @@ void whichAlertToMake() {
 	if (pir->getPIRStatus() == "OCCUPIED") {
 		if (thermometer->getTempStatus(tempStatus) == "RED"
 				|| (humidity->getHumStatus(humStatus)) == "RED") {
-			
 			audibleRedAlert();
 		} else if (thermometer->getTempStatus(tempStatus) == "AMBER"
 				|| (humidity->getHumStatus(humStatus)) == "AMBER") {
@@ -174,6 +173,7 @@ void whichAlertToMake() {
 			audibleAmberAlert();
 		}
 	}
+	ledcWrite(channel, 0);
 }
 
 /**
