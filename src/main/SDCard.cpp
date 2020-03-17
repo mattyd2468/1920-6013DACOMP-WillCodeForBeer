@@ -8,6 +8,16 @@
 #include <Vector.h>
 #include "enums/PIRStatus.h"
 
+/*
+ * CS	PIN 5
+ * SCK	PIN 18
+ * MOSI	PIN 23
+ * MISO	PIN 19
+ * VCC	PIN 5V
+ * GND	PIN GND
+ * PIN 10 needs to be empty
+ */
+
 SDCard::SDCard()
 {
 	// do nothing
