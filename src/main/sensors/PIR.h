@@ -3,6 +3,7 @@
 
 #include <arduino.h>
 #include "../enums/PIRStatus.h"
+#include "../SDCard.h"
 
 class PIR {
 public:
@@ -18,7 +19,7 @@ public:
 	PIR();
 	PIR(int potPin);
 
-	void motionSensor();
+	void motionSensor(SDCard* sdcard);
 	String getPIRStatus();
 };
 #endif
