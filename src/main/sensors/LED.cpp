@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "LED.h"
 
-
-LED::LED() {
+LED::LED()
+{
 	// do nothing
 }
 // Setting PWM frequency, channels and bit resolution
@@ -13,7 +13,8 @@ const int blueChannel = 2;
 // Bit resolution 2^8 = 256
 const int resolution = 8;
 
-LED::LED(int redPin, int greenPin, int bluePin) {
+LED::LED(int redPin, int greenPin, int bluePin)
+{
 	this->redPin = redPin;
 	this->greenPin = greenPin;
 	this->bluePin = bluePin;
@@ -44,28 +45,41 @@ LED::LED(int redPin, int greenPin, int bluePin) {
 	blueVal = 0;
 }
 
-void LED::setLEDColour(TemperatureStatus tempStatus, HumidityStatus humStatus) {
+void LED::setLEDColour(TemperatureStatus tempStatus, HumidityStatus humStatus)
+{
 
-	if (tempStatus == TemperatureStatus::RED || humStatus == HumidityStatus::RED) {
+	if (tempStatus == TemperatureStatus::RED || humStatus == HumidityStatus::RED)
+	{
 		setColour(255, 0, 0); // set LED to red
-	} else if (tempStatus == TemperatureStatus::AMBER || humStatus == HumidityStatus::AMBER) {
+		currentColour = LEDColour::RED;
+	}
+	else if (tempStatus == TemperatureStatus::AMBER || humStatus == HumidityStatus::AMBER)
+	{
 		setColour(255, 255, 0); // set LED to amber
-	} else {
-		setColour(0, 255, 0); // set LED to green
+		currentColour = LEDColour::YELLOW;
+	}
+	else
+	{
+		setColour(0, 255, 0); // set LED to
+		currentColour = LEDColour::GREEN;
 	}
 }
 
-void LED::setColour(int redVal, int greenVal, int blueVal) {
+void LED::setColour(int redVal, int greenVal, int blueVal)
+{
 	ledcWrite(redChannel, redVal);
 	ledcWrite(greenChannel, greenVal);
 	ledcWrite(blueChannel, blueVal);
 
+	lastColour = currentColour;
 }
 
-boolean LED::tempStatusHasChanged() {
+boolean LED::tempStatusHasChanged()
+{
 	return lastTempStatus != currentTempStatus;
 }
 
-boolean LED::humStatusHasChanged() {
+boolean LED::humStatusHasChanged()
+{
 	return lastTempStatus != currentTempStatus;
 }

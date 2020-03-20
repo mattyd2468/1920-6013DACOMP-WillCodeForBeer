@@ -2,7 +2,7 @@
 #define HUMIDITYSTATUS_H_
 
 enum class HumidityStatus {
-	GREEN, RED, AMBER
+	GREEN, AMBER, RED
 };
 
 #endif

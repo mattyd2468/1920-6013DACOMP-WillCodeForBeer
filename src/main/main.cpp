@@ -18,8 +18,8 @@ int statusMillis = 0;				  // time in millis since last status update
 
 //Variable initialisation
 bool firstLoop = true; //Variable to store if it is the first loop or not
-int potVal = 0;		   // Variable to store temperature value
-int humVal = 0;		   // Variable to store the humidity value
+double potVal = 0;		   // Variable to store temperature value
+double humVal = 0;		   // Variable to store the humidity value
 
 //Setting up the objects
 Thermometer *thermometer = NULL;
