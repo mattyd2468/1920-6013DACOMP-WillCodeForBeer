@@ -15,7 +15,7 @@ Humidity::Humidity(int potPin, LED* led) {
 	this->led = led;
 }
 
-HumidityStatus Humidity::calculateStatus(int potVal, LED* led) {
+HumidityStatus Humidity::calculateStatus(double potVal, LED* led) {
 	led->lastHumStatus = led->currentHumStatus;
 
 	if (potVal >= 34 && potVal <= 60) { // Humidity is between 34% and 60% - GREEN
