@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "../src/main/sensors/Thermometer.h"
 #include "../src/main/sensors/Humidity.h"
+#include "../src/main/sensors/Buzzer.h"
 #include "../src/main/sensors/LED.h"
 #include <DHTesp.h>
 #include "../src/main/sensors/PIR.h"
@@ -8,7 +9,6 @@
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
-const int BUZZER = 25; //Buzzer pin
 const int MOTION_SENSOR = 15;   // PIR sensor pin
 LED *led = new LED(26, 33, 32); // the LED which shows the status of the sensors, pins 23,22,21
 const int DHT11_DELAY = 2000;   // delay for the DHT11 sensor to take readings, must be 2 seconds
@@ -17,26 +17,23 @@ int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
 const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must be every 5 seconds
 int statusMillis = 0;				  // time in millis since last status update
 
-const int AMBER_ALERT_SOUND_DELAY = 30000; //Audible alert every 30 secs for amber alert
-const int RED_ALERT_SOUND_DELAY = 5000; // Audible alert every 5 secs for red alert
-int alertMillis = 0; // time in millis since last sound
+
 
 //Variable initialisation
 bool firstLoop = true; //Variable to store if it is the first loop or not
 int potVal = 0;		   // Variable to store temperature value
 int humVal = 0;		   // Variable to store the humidity value
-int freq = 2000; //buzzer set up. Doesnt need to change
-int channel = 0; //buzzer set up. Doesnt need to change
-int resolution = 8; //buzzer set up. Doesnt need to change
-int dutyCycle = 128; //buzzer 128 means noise. Set to 0 for silence
+
 
 //Setting up the objects
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
+BUZZER *buzzer = NULL;
 DHTesp dht;					  // object to store the DHT11 sensor
 TempAndHumidity tempHum;	  // the object to store the temperature and humidity values
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus;	 // object to store the humidity status
+
 
 PIRStatus motionSensorStatus = PIRStatus::VACANT; // object to store the PIR status
 PIR *pir = NULL;
@@ -54,17 +51,17 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
  */
 void setup()
 {
-	//taskG setup
-	ledcSetup(channel, freq, resolution);
-	ledcAttachPin(BUZZER, channel);
+	
 
 	thermometer = new Thermometer(DHTPIN, led);
 	humidity = new Humidity(DHTPIN, led);
+	
 
 	Serial.begin(115200);			  // @suppress("Ambiguous problem")
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
 	pir = new PIR(MOTION_SENSOR);
+	buzzer = new BUZZER(pir, thermometer, humidity);
 }
 
 /**
@@ -128,53 +125,7 @@ void statusUpdate()
 }
 
 
-/**
- * This method will cause buzzer to make a short sound
- */
-void buzz() {
-	ledcWrite(channel, dutyCycle);
-	delay(300);
-	ledcWrite(channel, 0);
-}
 
-/**
- * This will make a noise if last noise was less than 30 seconds ago
- */
-void audibleAmberAlert() {
-	if (timeDiff(alertMillis, AMBER_ALERT_SOUND_DELAY)) {
-		alertMillis = millis();
-		Serial.println("Amber buzz");
-		buzz();
-	}
-}
-
-/**
- * This will make a noise if last noise was less than 5 seconds ago
- */
-void audibleRedAlert() {
-	if (timeDiff(alertMillis, RED_ALERT_SOUND_DELAY)) {
-		alertMillis = millis();
-		Serial.println("Red buzz");
-		buzz();
-	}
-}
-
-/**
- * Check if it should call method to make noise
- */
-void whichAlertToMake() {
-	if (pir->getPIRStatus() == "OCCUPIED") {
-		if (thermometer->getTempStatus(tempStatus) == "RED"
-				|| (humidity->getHumStatus(humStatus)) == "RED") {
-			audibleRedAlert();
-		} else if (thermometer->getTempStatus(tempStatus) == "AMBER"
-				|| (humidity->getHumStatus(humStatus)) == "AMBER") {
-				
-			audibleAmberAlert();
-		}
-	}
-	ledcWrite(channel, 0);
-}
 
 /**
  * This method is our main loop logic
@@ -193,6 +144,6 @@ void loop()
 		tempAndHumSensor();
 		pir->motionSensor(); //Call taskD code
 		statusUpdate();		 // report status update
-		whichAlertToMake(); // Check if noise should be made
+		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
 	}
 }
