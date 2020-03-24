@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "../src/main/sensors/Thermometer.h"
 #include "../src/main/sensors/Humidity.h"
+#include "../src/main/sensors/Buzzer.h"
 #include "../src/main/sensors/LED.h"
 #include <DHTesp.h>
 #include "../src/main/sensors/PIR.h"
@@ -16,18 +17,23 @@ int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
 const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must be every 5 seconds
 int statusMillis = 0;				  // time in millis since last status update
 
+
+
 //Variable initialisation
 bool firstLoop = true; //Variable to store if it is the first loop or not
 double potVal = 0;		   // Variable to store temperature value
 double humVal = 0;		   // Variable to store the humidity value
 
+
 //Setting up the objects
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
+BUZZER *buzzer = NULL;
 DHTesp dht;					  // object to store the DHT11 sensor
 TempAndHumidity tempHum;	  // the object to store the temperature and humidity values
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus;	 // object to store the humidity status
+
 
 PIRStatus motionSensorStatus = PIRStatus::VACANT; // object to store the PIR status
 PIR *pir = NULL;
@@ -45,13 +51,17 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
  */
 void setup()
 {
+	
+
 	thermometer = new Thermometer(DHTPIN, led);
 	humidity = new Humidity(DHTPIN, led);
+	
 
 	Serial.begin(115200);			  // @suppress("Ambiguous problem")
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
 	pir = new PIR(MOTION_SENSOR);
+	buzzer = new BUZZER(pir, thermometer, humidity);
 }
 
 /**
@@ -114,6 +124,9 @@ void statusUpdate()
 	}
 }
 
+
+
+
 /**
  * This method is our main loop logic
  */
@@ -131,5 +144,6 @@ void loop()
 		tempAndHumSensor();
 		pir->motionSensor(); //Call taskD code
 		statusUpdate();		 // report status update
+		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
 	}
 }
