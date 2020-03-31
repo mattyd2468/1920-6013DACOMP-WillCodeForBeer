@@ -51,12 +51,9 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
  */
 void setup()
 {
-	
-
 	thermometer = new Thermometer(DHTPIN, led);
 	humidity = new Humidity(DHTPIN, led);
 	
-
 	Serial.begin(115200);			  // @suppress("Ambiguous problem")
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
