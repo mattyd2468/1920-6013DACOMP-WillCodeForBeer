@@ -4,7 +4,13 @@
 #include "../src/main/sensors/Buzzer.h"
 #include "../src/main/sensors/LED.h"
 #include <DHTesp.h>
+#include <WiFi.h>
 #include "../src/main/sensors/PIR.h"
+
+//WiFi
+const char* SSID  = "Matt"; //changed from const because when it was const WiFi.begin() complained
+const char* PASS  = "password";
+const char* HOST = "http://willcodeforbeer.epizy.com/";
 
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
@@ -51,14 +57,24 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
  */
 void setup()
 {
-	
-
 	thermometer = new Thermometer(DHTPIN, led);
 	humidity = new Humidity(DHTPIN, led);
 	
-
 	Serial.begin(115200);			  // @suppress("Ambiguous problem")
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
+
+//WiFi
+	Serial.print("Connecting to ");
+	Serial.println(SSID);
+	WiFi.disconnect(); // <= Added this line
+	WiFi.begin(SSID, PASS);
+	while (WiFi.status() != WL_CONNECTED){
+		delay(250);
+		Serial.print(".");
+	}
+	Serial.print("Connected as :");
+	Serial.println(WiFi.localIP());
+
 
 	pir = new PIR(MOTION_SENSOR);
 	buzzer = new BUZZER(pir, thermometer, humidity);
@@ -124,7 +140,25 @@ void statusUpdate()
 	}
 }
 
+/**
+ * Working from example here https://forum.arduino.cc/index.php?topic=155218.0
+ * And slide 21 of lecture on wifi
+ * I have added WiFiClient Library. 
+ * PHP script can be found here  
+ * */
 
+void post(){
+	//WiFI stuff. Eventually to go in own class
+	WiFiClient client(HOST, 80);
+	String postDataTest = "Is this working";
+	if (client.connect()) {
+    	Serial.println("connected");
+  		client.println(postDataTest);
+  	} 
+  	else {
+    	Serial.println("connection failed");
+  }
+}
 
 
 /**
@@ -136,6 +170,7 @@ void loop()
 	if (firstLoop)
 	{
 		powerOnTest();
+		post();
 	}
 	//Else run normal system
 	else
