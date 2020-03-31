@@ -16,7 +16,7 @@ Thermometer::Thermometer(int potPin, LED *led)
 	this->led = led;
 }
 
-TemperatureStatus Thermometer::calculateStatus(int potVal, LED *led)
+TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 {
 	led->lastTempStatus = led->currentTempStatus;
 

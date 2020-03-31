@@ -8,13 +8,13 @@
 class Humidity {
 public:
 
-	int potVal = 0;
+	double potVal = 0;
 	int potPin = 4;
 	LED* led;
 
 	Humidity();
 	Humidity(int potPin, LED *led);
-	HumidityStatus calculateStatus(int potVal, LED *led);
+	HumidityStatus calculateStatus(double potVal, LED *led);
 	String getHumStatus(HumidityStatus humStatus);
 };
 #endif
