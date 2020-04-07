@@ -15,9 +15,10 @@
 //WiFi
 const char *SSID = "Matt";
 const char *PASS = "password";
-const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/?willcodeforbeer";
+const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
 const int TIMEOUT = 10000;
 const String GROUPNAME = "WillCodeForBeer";
+const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
 
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
@@ -60,27 +61,40 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
  */
 void sendValueHTTP()
 {
-	// query parameters to search for esp32 in last month
-	String url = HOST;
-	url.concat("&t=");
-	url.concat(tempHum.temperature);
-	url.concat("&h=");
-	url.concat(tempHum.humidity);
-	HTTPClient hClient;
-	hClient.begin(url);
-	const char *headers[] = {"Date"};
-	hClient.collectHeaders(headers, 1);
-	hClient.setTimeout(TIMEOUT);
-	int retCode = hClient.GET();
-	if (retCode > 0)
+	if (timeDiff(statusMillis, STATUS_UPDATE_DELAY))
 	{
-		//a real HTTP code
-		Serial.print("HTTP ");
-		Serial.println(retCode);
-		if (retCode != HTTP_CODE_OK)
+		statusMillis = millis();
+		// url parameters
+		String url = HOST;
+		url.concat("?groupname=");
+		url.concat(GROUPNAME);
+		url.concat("&t=");
+		url.concat(tempHum.temperature);
+		url.concat("&h=");
+		url.concat(tempHum.humidity);
+		HTTPClient hClient;
+		hClient.begin(url);
+		const char *headers[] = {"Date"};
+		hClient.collectHeaders(headers, 1);
+		hClient.setTimeout(TIMEOUT);
+		int retCode = hClient.GET();
+		if (retCode > 0)
+		{
+			//a real HTTP code
+			Serial.print("HTTP ");
+			Serial.println(retCode);
+			if (retCode == HTTP_CODE_OK)
+			{
+				Serial.println("------");
+				Serial.println("Date = " + hClient.header("Date"));
+				Serial.println("-------");
+				Serial.println(hClient.getString());
+			}
+		}
+		else
 		{
 			Serial.println("Error... ");
-		Serial.println(HTTPClient::errorToString(retCode));
+			Serial.println(HTTPClient::errorToString(retCode));
 		}
 	}
 }
@@ -109,6 +123,7 @@ void setup()
 		Serial.println(".");
 	}
 	Serial.print("Connected as :");
+	Serial.println(WiFi.localIP());
 }
 
 /**
@@ -168,9 +183,6 @@ void statusUpdate()
 		Serial.print("PIR sensor status: ");
 		Serial.println(pir->getPIRStatus());
 		Serial.println("----------------");
-
-		//write to server
-		sendValueHTTP();
 	}
 }
 
@@ -192,5 +204,7 @@ void loop()
 		pir->motionSensor();							 //Call taskD code
 		statusUpdate();									 // report status update
 		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
+		//write to server
+		sendValueHTTP();
 	}
 }
