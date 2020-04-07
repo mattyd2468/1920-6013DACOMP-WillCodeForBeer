@@ -64,7 +64,7 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
 /**
  * Method to post to server
  */
-void sendValueHTTP()
+void writeToServer()
 {
 	if (timeDiff(statusMillis, STATUS_UPDATE_DELAY))
 	{
@@ -212,6 +212,6 @@ void loop()
 		statusUpdate(); // report status update
 		sdcard->writeToSDCard();
     buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-    statusUpdate();									 // report status update
+    writeToServer();									 // write to server
 	}
 }
