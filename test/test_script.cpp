@@ -3,9 +3,12 @@
 #include "../src/main/sensors/Thermometer.cpp"
 #include "../src/main/sensors/Humidity.cpp"
 #include "../src/main/sensors/LED.cpp"
+#include "../src/main/sensors/PIR.cpp"
+
 LED *led;
 Thermometer *temperature;
 Humidity *humidity;
+PIR *pir;
 
 void setup()
 {
@@ -17,7 +20,9 @@ void setup()
     led = new LED(26, 33, 32);
     temperature = new Thermometer(4, led);
     humidity = new Humidity(4, led);
+    pir = new PIR(15);
 
+    pinMode(15, INPUT);
     pinMode(4, INPUT);
     pinMode(26, OUTPUT);
     pinMode(33, OUTPUT);
@@ -188,6 +193,29 @@ void test_humidity_red_status3(void)
     TEST_ASSERT_EQUAL(HumidityStatus::RED, humidity->calculateStatus(90.00, led));
 }
 
+/**
+ * Test scripts for Task D
+ */
+
+void test_PIR_status()
+{
+    TEST_ASSERT_EQUAL(PIRStatus::VACANT, pir->motionSensorStatus);
+}
+
+void test_PIR_vacant()
+{
+    pir->lowTime = 5000;
+    pir->motionSensor();
+    TEST_ASSERT_EQUAL(PIRStatus::VACANT, pir->motionSensorStatus);
+}
+
+void test_PIR_occupied()
+{
+    digitalWrite(15, HIGH);
+    pir->motionSensor();
+    TEST_ASSERT_EQUAL(PIRStatus::OCCUPIED, pir->motionSensorStatus);
+}
+
 /*
 * Run The Tests
 */
@@ -261,9 +289,22 @@ void runDHT11Script()
     delay(1000);
 }
 
+void runPIRScript()
+{
+    RUN_TEST(test_PIR_status);
+    delay(1000);
+    RUN_TEST(test_PIR_vacant);
+    delay(1000);
+    RUN_TEST(test_PIR_occupied);
+    delay(1000);
+}
+
 void loop()
 {
-    runLEDScript();
-    runDHT11Script();
+    // runPowerOnScript(); // Task A
+    runLEDScript();   // Task B
+    runDHT11Script(); // Task B
+    runPIRScript(); // Task D
+
     UNITY_END(); // stop unit testing
 }

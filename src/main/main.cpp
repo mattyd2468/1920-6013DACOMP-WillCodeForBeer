@@ -1,16 +1,18 @@
 #include "Arduino.h"
 #include "HTTPClient.h"
-#include "../src/main/sensors/Thermometer.h"
-#include "../src/main/sensors/Humidity.h"
-#include "../src/main/sensors/Buzzer.h"
-#include "../src/main/sensors/LED.h"
 #include <DHTesp.h>
+#include "../main/sensors/Thermometer.h"
+#include "../main/sensors/Humidity.h"
+#include "../main/sensors/LED.h"
+#include "../main/sensors/PIR.h"
+#include "../src/main/sensors/Buzzer.h"
 #include <WiFi.h>
 #include <WiFiType.h>
 #include <HardwareSerial.h>
 #include <IPAddress.h>
 #include <WString.h>
-#include "../src/main/sensors/PIR.h"
+#include "SDCard.h"
+#include <Vector.h>
 
 //WiFi
 const char *SSID = "Matt";
@@ -47,6 +49,9 @@ HumidityStatus humStatus;	  // object to store the humidity status
 
 PIRStatus motionSensorStatus = PIRStatus::VACANT; // object to store the PIR status
 PIR *pir = NULL;
+
+SDCard *sdcard = NULL;
+const int SD_PIN = 5; // must be pin 5
 
 /**
  * This method returns a boolean as to whether the time that has passed is longer than the delay specified
@@ -111,6 +116,7 @@ void setup()
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
 	pir = new PIR(MOTION_SENSOR);
+	sdcard = new SDCard(SD_PIN);
 	buzzer = new BUZZER(pir, thermometer, humidity);
 
 	//WiFI
@@ -149,7 +155,6 @@ void powerOnTest()
  */
 void tempAndHumSensor()
 {
-
 	if (timeDiff(DHT11Millis, DHT11_DELAY))
 	{							// only get readings every 2 seconds - this is needed for the DHT11 sensor as a minimum
 		DHT11Millis = millis(); // reset DHT11 millis
@@ -159,6 +164,8 @@ void tempAndHumSensor()
 		tempStatus = thermometer->calculateStatus(tempHum.temperature, led);
 		humStatus = humidity->calculateStatus(tempHum.humidity, led);
 		led->setLEDColour(tempStatus, humStatus);
+
+		sdcard->storeDHT11Readings((String)tempHum.temperature, (String)tempHum.humidity);
 	}
 }
 
@@ -201,10 +208,10 @@ void loop()
 	{
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
-		pir->motionSensor();							 //Call taskD code
-		statusUpdate();									 // report status update
-		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-		//write to server
-		sendValueHTTP();
+		pir->motionSensor(sdcard); //Call taskD code
+		statusUpdate(); // report status update
+		sdcard->writeToSDCard();
+    buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
+    statusUpdate();									 // report status update
 	}
 }
