@@ -29,8 +29,18 @@ You first need to install PlatformIO which will also install VS code for you, on
     <td>taskA_schematics.pdf</td>
   </tr>
   <tr>
+    <td>2</td>
+    <td>v1.0</td>
     <td>example</td>
+  </tr>
+   <tr>
+    <td>3</td>
+    <td>v2.0</td>
     <td>example</td>
+  </tr>
+   <tr>
+    <td>4</td>
+    <td>v3.0</td>
     <td>example</td>
   </tr>
 </table>
