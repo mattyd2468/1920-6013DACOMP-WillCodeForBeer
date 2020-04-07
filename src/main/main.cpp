@@ -30,7 +30,7 @@ const int MOTION_SENSOR = 15;	// PIR sensor pin
 LED *led = new LED(26, 33, 32); // the LED which shows the status of the sensors, pins 23,22,21
 const int DHT11_DELAY = 2000;	// delay for the DHT11 sensor to take readings, must be 2 seconds
 int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
-
+const int buttonPin = 13;
 const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must be every 5 seconds
 int statusMillis = 0;				  // time in millis since last status update
 
@@ -38,6 +38,7 @@ int statusMillis = 0;				  // time in millis since last status update
 bool firstLoop = true; //Variable to store if it is the first loop or not
 double potVal = 0;	   // Variable to store temperature value
 double humVal = 0;	   // Variable to store the humidity value
+int buttonState = 0;   //Variable for button, is not pressed when it is 0
 
 //Setting up the objects
 Thermometer *thermometer = NULL;
@@ -114,6 +115,7 @@ void setup()
 	humidity = new Humidity(DHTPIN, led);
 	Serial.begin(115200);			  // @suppress("Ambiguous problem")
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
+	pinMode(buttonPin, INPUT_PULLUP);
 
 	pir = new PIR(MOTION_SENSOR);
 	sdcard = new SDCard(SD_PIN);
@@ -191,6 +193,15 @@ void statusUpdate()
 		Serial.println(pir->getPIRStatus());
 		Serial.println("----------------");
 	}
+}
+
+void readButton(){
+	//Read button state (pressed or not pressed?)
+  buttonState = digitalRead(buttonPin);
+  //if button pressed add 2 mins to the tine buzzer will next buzz
+   if (buttonState == LOW) { 
+	   buzzer->alertMillis = buzzer->alertMillis-120000;
+   }
 }
 
 /**
