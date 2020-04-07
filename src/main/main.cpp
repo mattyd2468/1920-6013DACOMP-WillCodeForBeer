@@ -21,6 +21,7 @@ const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
 const int TIMEOUT = 10000;
 const String GROUPNAME = "WillCodeForBeer";
 const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
+int serverMillis = 0;				  // time in millis since last written to server
 
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
@@ -66,9 +67,9 @@ boolean timeDiff(unsigned long start, int specifiedDelay)
  */
 void writeToServer()
 {
-	if (timeDiff(statusMillis, STATUS_UPDATE_DELAY))
+	if (timeDiff(serverMillis, WRITE_TO_SERVER_DELAY))
 	{
-		statusMillis = millis();
+		serverMillis = millis();
 		// url parameters
 		String url = HOST;
 		url.concat("?groupname=");
