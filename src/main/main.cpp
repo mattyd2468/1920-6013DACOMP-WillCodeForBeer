@@ -21,7 +21,7 @@ const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
 const int TIMEOUT = 10000;
 const String GROUPNAME = "WillCodeForBeer";
 const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
-int serverMillis = 0;				  // time in millis since last written to server
+int serverMillis = 0;					 // time in millis since last written to server
 
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
@@ -194,14 +194,15 @@ void statusUpdate()
 		Serial.println("----------------");
 	}
 }
-
-void readButton(){
+void readButton()
+{
 	//Read button state (pressed or not pressed?)
-  buttonState = digitalRead(buttonPin);
-  //if button pressed add 2 mins to the tine buzzer will next buzz
-   if (buttonState == LOW) { 
-	   buzzer->alertMillis = buzzer->alertMillis-120000;
-   }
+	buttonState = digitalRead(buttonPin);
+	//if button pressed add 2 mins to the tine buzzer will next buzz
+	if (buttonState == LOW)
+	{
+		buzzer->alertMillis = buzzer->alertMillis - 120000;
+	}
 }
 
 /**
@@ -220,9 +221,10 @@ void loop()
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
 		pir->motionSensor(sdcard); //Call taskD code
-		statusUpdate(); // report status update
+		statusUpdate();			   // report status update
 		sdcard->writeToSDCard();
-    buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-    writeToServer();									 // write to server
+		readButton();
+		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
+		writeToServer();								 // write to server
 	}
 }
