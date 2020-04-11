@@ -106,6 +106,20 @@ void writeToServer()
 	}
 }
 
+void connectToHotspot(){
+	//WiFI
+	Serial.print("Connecting to ");
+	Serial.println(SSID);
+	WiFi.begin(SSID, PASS);
+	while (WiFi.status() != WL_CONNECTED)
+	{
+		delay(250);
+		Serial.println(".");
+	}
+	Serial.print("Connected as :");
+	Serial.println(WiFi.localIP());
+}
+
 /**
  * This method is used at startup and initialises our sensors and pins
  */
@@ -121,17 +135,7 @@ void setup()
 	sdcard = new SDCard(SD_PIN);
 	buzzer = new BUZZER(pir, thermometer, humidity);
 
-	//WiFI
-	Serial.print("Connecting to ");
-	Serial.println(SSID);
-	WiFi.begin(SSID, PASS);
-	while (WiFi.status() != WL_CONNECTED)
-	{
-		delay(250);
-		Serial.println(".");
-	}
-	Serial.print("Connected as :");
-	Serial.println(WiFi.localIP());
+	connectToHotspot();
 }
 
 /**
@@ -148,6 +152,9 @@ void powerOnTest()
 	if (tempHum.humidity == 0 || tempHum.humidity == 100 || isnan(tempHum.humidity))
 	{
 		Serial.println("Humidity Error");
+	}
+	if (WiFi.status() != WL_CONNECTED){
+		Serial.println("WiFi Error");
 	}
 	firstLoop = false;
 }
@@ -198,10 +205,11 @@ void readButton()
 {
 	//Read button state (pressed or not pressed?)
 	buttonState = digitalRead(buttonPin);
-	//if button pressed add 2 mins to the tine buzzer will next buzz
-	if (buttonState == LOW)
+	//if button pressed add 2 mins to the time buzzer will next buzz
+	if (buttonState == LOW) //Because using pullup resistor if button is pressed it will be LOW
 	{
-		buzzer->alertMillis = buzzer->alertMillis - 120000;
+		//Add 2 mins to alert wait
+		buzzer->alertMillis = buzzer->alertMillis - 120000; 
 	}
 }
 
