@@ -246,21 +246,22 @@ void loop()
 		pir->motionSensor(sdcard); //Call taskD code
 		statusUpdate(); // report status update
 		sdcard->writeToSDCard();
-    buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-    writeToServer();									 // write to server
-	}
+		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
+		writeToServer();									 // write to server
 	
-	//PIR Sensor Status
-	if(pir->getPIRStatus()=="OCCUPIED"){
-		isOccupied = true;
-	}
-	else {
-		isOccupied = false;
-	}
+	
+		//PIR Sensor Status
+		if(pir->getPIRStatus()=="OCCUPIED"){
+			isOccupied = true;
+		}
+		else {
+			isOccupied = false;
+		}
 
-	// update oled screen every 250 milliseconds to prevent flicker
-	if (timeDiff(oledChangeTime, oledRefreshTime)) {
-		oledChangeTime = millis();
-		updateScreen(tempHum.temperature, tempHum.humidity, isOccupied); // Updating OLED Screen
+		// update oled screen every 250 milliseconds to prevent flicker
+		if (timeDiff(oledChangeTime, oledRefreshTime)) {
+			oledChangeTime = millis();
+			updateScreen(tempHum.temperature, tempHum.humidity, isOccupied); // Updating OLED Screen
+		}
 	}
 }
