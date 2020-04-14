@@ -13,6 +13,14 @@
 #include <WString.h>
 #include "SDCard.h"
 #include <Vector.h>
+#include <Adafruit_GFX.h>
+#include <SSD1306.h>
+
+//OLED Screen
+SSD1306 display(0x3c, 21, 22);	//OLED display
+const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
+unsigned long oledChangeTime = 0;	//Time since OLED screen was last updated
+bool isOccupied = false;
 
 //WiFi
 const char *SSID = "Matt";
@@ -114,6 +122,15 @@ void setup()
 	humidity = new Humidity(DHTPIN, led);
 
 	Serial.begin(115200);			  // @suppress("Ambiguous problem")
+
+	//OLED Screen Initialization & Setup
+	display.init();
+	display.clear();
+	display.flipScreenVertically();
+	display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_16);
+	display.drawString(0, 0, "WillCodeForBeer");   
+
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
 	pir = new PIR(MOTION_SENSOR);
@@ -194,6 +211,23 @@ void statusUpdate()
 	}
 }
 
+void updateScreen(int temp, int hum, bool isOccupied){
+	display.clear();
+	display.drawString(0, 0, "Temp:"); //Temp Label   
+	display.drawString(0, 18, "Humidity:"); //Humidity Label
+	display.drawString(75,0, String(temp)); //Temp value
+	display.drawString(75,18, String(hum)); //Humidity value
+    
+	//Occupied/Vacant value
+	if(isOccupied){
+		display.drawString(0, 36, "Occupied");
+	}
+	else {
+		display.drawString(0, 36, "Vacant");
+	}
+	display.display();
+}
+
 /**
  * This method is our main loop logic
  */
@@ -214,5 +248,19 @@ void loop()
 		sdcard->writeToSDCard();
     buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
     writeToServer();									 // write to server
+	}
+	
+	//PIR Sensor Status
+	if(pir->getPIRStatus()=="OCCUPIED"){
+		isOccupied = true;
+	}
+	else {
+		isOccupied = false;
+	}
+
+	// update oled screen every 250 milliseconds to prevent flicker
+	if (timeDiff(oledChangeTime, oledRefreshTime)) {
+		oledChangeTime = millis();
+		updateScreen(tempHum.temperature, tempHum.humidity, isOccupied); // Updating OLED Screen
 	}
 }
