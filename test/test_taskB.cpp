@@ -21,7 +21,7 @@
 //     delay(2000);
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
-//     led = new LED(26, 33, 32);
+//     led = new LED(27, 33, 32);
 //     temperature = new Thermometer(4, led);
 //     humidity = new Humidity(4, led);
 
@@ -205,6 +205,8 @@
 //     delay(1000);
 //     RUN_TEST(test_temp_amber_hum_amber);
 //     delay(1000);
+//     RUN_TEST(test_temp_green_hum_amber);
+//     delay(1000);
 //     RUN_TEST(test_temp_amber_hum_red);
 //     delay(1000);
 //     RUN_TEST(test_temp_red_hum_green);
@@ -213,10 +215,9 @@
 //     delay(1000);
 //     RUN_TEST(test_temp_red_hum_red);
 //     delay(1000);
-//     RUN_TEST(test_temp_green_hum_amber);
-//     delay(1000);
 //     RUN_TEST(test_temp_green_hum_red);
 //     delay(1000);
+
 // }
 
 // void runDHT11Script()
@@ -268,5 +269,6 @@
 // {
 //     runDHT11Script();
 //     runLEDScript();
+
 //     UNITY_END(); // stop unit testing
 // }

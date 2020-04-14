@@ -50,18 +50,18 @@ void LED::setLEDColour(TemperatureStatus tempStatus, HumidityStatus humStatus)
 
 	if (tempStatus == TemperatureStatus::RED || humStatus == HumidityStatus::RED)
 	{
-		setColour(255, 0, 0); // set LED to red
 		currentColour = LEDColour::RED;
+		setColour(255, 0, 0); // set LED to red
 	}
 	else if (tempStatus == TemperatureStatus::AMBER || humStatus == HumidityStatus::AMBER)
 	{
-		setColour(255, 255, 0); // set LED to amber
 		currentColour = LEDColour::YELLOW;
+		setColour(255, 255, 0); // set LED to amber
 	}
-	else
+	else if(tempStatus == TemperatureStatus::GREEN || humStatus == HumidityStatus::GREEN)
 	{
-		setColour(0, 255, 0); // set LED to
 		currentColour = LEDColour::GREEN;
+		setColour(0, 255, 0); // set LED to green
 	}
 }
 
@@ -72,6 +72,7 @@ void LED::setColour(int redVal, int greenVal, int blueVal)
 	ledcWrite(blueChannel, blueVal);
 
 	lastColour = currentColour;
+
 }
 
 boolean LED::tempStatusHasChanged()
@@ -81,5 +82,5 @@ boolean LED::tempStatusHasChanged()
 
 boolean LED::humStatusHasChanged()
 {
-	return lastTempStatus != currentTempStatus;
+	return lastHumStatus != currentHumStatus;
 }
