@@ -29,7 +29,7 @@ PIR::PIR(int MOTION_SENSOR)
 /**
  * This method reads the PIR sensor to see if movement has been detected and updates the status accordingly
  */
-void PIR::motionSensor(SDCard* sdcard)
+void PIR::motionSensor(SDCard* sdcard, vector<String> logging)
 {
 
 	if (digitalRead(MOTION_SENSOR) == HIGH)
@@ -44,7 +44,7 @@ void PIR::motionSensor(SDCard* sdcard)
 			Serial.println("OCCUPIED at ");
 			Serial.print(millis() / 1000);
 			Serial.println(" sec");
-			sdcard->storePIRReadings("OCCUPIED");
+			sdcard->storePIRReadings("OCCUPIED", logging);
 			delay(50);
 		}
 		this->getLowTime = true;
@@ -68,7 +68,7 @@ void PIR::motionSensor(SDCard* sdcard)
 			Serial.println("VACANT at ");
 			Serial.print((millis()) / 1000);
 			Serial.println(" sec");
-			sdcard->storePIRReadings("VACANT");
+			sdcard->storePIRReadings("VACANT", logging);
 			delay(50);
 		}
 	}

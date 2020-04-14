@@ -31,20 +31,24 @@ LED *led = new LED(26, 33, 32); // the LED which shows the status of the sensors
 const int DHT11_DELAY = 2000;	// delay for the DHT11 sensor to take readings, must be 2 seconds
 int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
 
-const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must be every 5 seconds
+const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must start as 5 seconds
 int statusMillis = 0;				  // time in millis since last status update
 
+const int MEMORY_UPDATE_DELAY = 5000; // delay for the volatile memory update, must be every 5 seconds
+int memoryMillis = 0;				  // time in millis since last memory update
+
 //Variable initialisation
-bool firstLoop = true; //Variable to store if it is the first loop or not
-double potVal = 0;	   // Variable to store temperature value
-double humVal = 0;	   // Variable to store the humidity value
+bool firstLoop = true; 		//Variable to store if it is the first loop or not
+double potVal = 0;	   		// Variable to store temperature value
+double humVal = 0;	   		// Variable to store the humidity value
+vector<String> logging;		// Vector to store reading in volatile memory
 
 //Setting up the objects
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
 BUZZER *buzzer = NULL;
-DHTesp dht;					  // object to store the DHT11 sensor
 TempAndHumidity tempHum;	  // the object to store the temperature and humidity values
+DHTesp dht;					  // object to store the DHT11 sensor
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus;	  // object to store the humidity status
 
@@ -120,7 +124,7 @@ void setup()
 	sdcard = new SDCard(SD_PIN);
 	buzzer = new BUZZER(pir, thermometer, humidity);
 
-	//WiFI
+	// WiFI
 	Serial.print("Connecting to ");
 	Serial.println(SSID);
 	WiFi.begin(SSID, PASS);
@@ -166,7 +170,7 @@ void tempAndHumSensor()
 		humStatus = humidity->calculateStatus(tempHum.humidity, led);
 		led->setLEDColour(tempStatus, humStatus);
 
-		sdcard->storeDHT11Readings((String)tempHum.temperature, (String)tempHum.humidity);
+
 	}
 }
 
@@ -195,6 +199,28 @@ void statusUpdate()
 }
 
 /**
+ *	This method will check when results were last written to memory, and if >5 seconds ago,	
+ *	if will write the most recently recorded values.
+ */
+void storeToVolatileMemory()
+{
+
+	if (timeDiff(memoryMillis, MEMORY_UPDATE_DELAY)) {
+
+		memoryMillis = millis();
+
+		// Stores latest recorded DHT11 readings into a vector in volatile memory.
+		logging.push_back("Temperature: " + (String)tempHum.temperature + "°C");
+		logging.push_back("Humidity: " + (String)tempHum.humidity + "%");
+
+		// Stores latest recorded PIR readings into a vector in volatile memory.
+		logging.push_back("Building Status: " + pir->getPIRStatus());
+
+	}
+
+}
+
+/**
  * This method is our main loop logic
  */
 void loop()
@@ -209,10 +235,11 @@ void loop()
 	{
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
-		pir->motionSensor(sdcard); //Call taskD code
+		pir->motionSensor(sdcard, logging); //Call taskD code
 		statusUpdate(); // report status update
-		sdcard->writeToSDCard();
-    buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-    writeToServer();									 // write to server
+		storeToVolatileMemory();
+		sdcard->writeToSDCard(logging);
+		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
+		writeToServer();									 // write to server
 	}
 }

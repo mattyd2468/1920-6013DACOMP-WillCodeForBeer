@@ -19,7 +19,7 @@ public:
 	PIR();
 	PIR(int potPin);
 
-	void motionSensor(SDCard* sdcard);
+	void motionSensor(SDCard* sdcard, vector<String> logging);
 	String getPIRStatus();
 };
 #endif
