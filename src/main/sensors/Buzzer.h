@@ -14,7 +14,7 @@ class BUZZER {
     const int RED_ALERT_SOUND_DELAY = 5000; // Audible alert every 5 secs for red alert
     int alertMillis = 0; // time in millis since last sound
     const int freq = 2000; //buzzer set up. Doesnt need to change
-    const int channel = 0; //buzzer set up. Doesnt need to change
+    const int channel = 3; //buzzer set up. Set to 3 becasue 0,1 & 2 used by LED
     const int resolution = 8; //buzzer set up. Doesnt need to change
     const int dutyCycle = 128; //buzzer 128 means noise. Set to 0 for silence
     PIR *pir;
