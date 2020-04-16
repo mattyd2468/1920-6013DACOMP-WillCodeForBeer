@@ -129,7 +129,9 @@ void setup()
 	display.flipScreenVertically();
 	display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_16);
-	display.drawString(0, 0, "WillCodeForBeer");   
+	display.drawString(0, 0, "WillCodeForBeer");
+	display.drawString(0, 18, "Running Setup()");      
+	display.display();
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
