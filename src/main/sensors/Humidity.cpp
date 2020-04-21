@@ -1,5 +1,6 @@
 #include "Humidity.h"
 #include "LED.h"
+#include "Buzzer.h"
 #include <Arduino.h>
 #include <DHTesp.h>
 
@@ -13,6 +14,7 @@ Humidity::Humidity(int potPin, LED* led) {
 	this->potVal = 0;
 
 	this->led = led;
+	this->buzzer = buzzer;
 }
 
 HumidityStatus Humidity::calculateStatus(double potVal, LED* led) {
@@ -31,6 +33,7 @@ HumidityStatus Humidity::calculateStatus(double potVal, LED* led) {
 
 		if (led->humStatusHasChanged()) {
 			Serial.println("Humidity status has changed - status is now amber!");
+			buzzer->buzz();
 		}
 		return HumidityStatus::AMBER;
 
@@ -40,6 +43,7 @@ HumidityStatus Humidity::calculateStatus(double potVal, LED* led) {
 
 		if (led->humStatusHasChanged()) {
 			Serial.println("Humidity status has changed - status is now red!");
+			buzzer->buzz();
 		}
 		return HumidityStatus::RED;
 	}
