@@ -8,7 +8,7 @@ Thermometer::Thermometer()
 	// do nothing
 }
 
-Thermometer::Thermometer(int potPin, LED *led)
+Thermometer::Thermometer(int potPin, LED *led, BUZZER *buzzer)
 {
 	this->potPin = potPin;
 	pinMode(this->potPin, INPUT);

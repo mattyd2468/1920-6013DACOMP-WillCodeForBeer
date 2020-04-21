@@ -14,7 +14,7 @@ public:
 	BUZZER* buzzer;
 
 	Thermometer();
-	Thermometer(int potPin, LED *led);
+	Thermometer(int potPin, LED *led, BUZZER* buzzer);
 	TemperatureStatus calculateStatus(double potVal, LED *led);
 	String getTempStatus(TemperatureStatus currentStatus);
 };

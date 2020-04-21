@@ -8,7 +8,7 @@ Humidity::Humidity() {
 	// do nothing
 }
 
-Humidity::Humidity(int potPin, LED* led) {
+Humidity::Humidity(int potPin, LED* led, BUZZER* buzzer) {
 	this->potPin = potPin;
 	pinMode(this->potPin, INPUT);
 	this->potVal = 0;

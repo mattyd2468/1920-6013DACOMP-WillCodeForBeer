@@ -121,14 +121,15 @@ void SDCard::formatDate(String date)
 
 	// set the time
 	wifiTime = localtime;
-
-	Serial.print("DATE TIME = ");
+	
+	Serial.print("The date and time is: ");
 	Serial.println(localDate + " " + wifiTime);
 
 	// create file name for sd card
 	logname = ("/" + localDate + ".txt");
-	Serial.println(logname);
+	Serial.println("The file name for the SD card is: " + logname);
 }
+
 
 SDCard::SDCard(int CS_PIN, String date)
 {

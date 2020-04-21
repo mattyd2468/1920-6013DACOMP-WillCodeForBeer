@@ -1,11 +1,11 @@
 #ifndef BUZZER_H_
 #define BUZZER_H_
 
-
 #include <arduino.h>
 #include "PIR.h"
-#include "Thermometer.h"
-#include "Humidity.h"
+#include "../enums/TemperatureStatus.h"
+#include "../enums/HumidityStatus.h"
+#include "../enums/BuzzerStatus.h"
 
 class BUZZER {
     public:
@@ -18,16 +18,18 @@ class BUZZER {
     const int resolution = 8; //buzzer set up. Doesnt need to change
     const int dutyCycle = 128; //buzzer 128 means noise. Set to 0 for silence
     PIR *pir;
-    Thermometer *thermometer;
-    Humidity *humidity;
+    BuzzerStatus buzzerStatus;
+    bool buzzerSnooze;
 
     BUZZER();
-    BUZZER(PIR *pir, Thermometer *thermometer, Humidity *humidity);
+    BUZZER(PIR *pir);
 
     void buzz();
     boolean timeDiff(unsigned long start, int specifiedDelay);
     void audibleAmberAlert();
     void audibleRedAlert();
     void whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus);
+    String getBuzzerStatus();
+    String getBuzzerSnooze();
 };
 #endif

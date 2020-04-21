@@ -17,9 +17,9 @@
 #include <SSD1306.h>
 
 //OLED Screen
-SSD1306 display(0x3c, 21, 22);	//OLED display
+SSD1306 display(0x3c, 21, 22);			   //OLED display
 const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
-unsigned long oledChangeTime = 0;	//Time since OLED screen was last updated
+unsigned long oledChangeTime = 0;		   //Time since OLED screen was last updated
 bool isOccupied = false;
 
 //WiFi
@@ -105,7 +105,6 @@ void writeToServer()
 				Serial.println("------");
 				Serial.println("Date = " + hClient.header("Date"));
 				Serial.println("-------");
-				 Serial.println(hClient.getString());
 
 				date = hClient.header("Date");
 			}
@@ -137,9 +136,14 @@ void connectToHotspot(){
  */
 void setup()
 {
-	thermometer = new Thermometer(DHTPIN, led);
-	humidity = new Humidity(DHTPIN, led);
-	Serial.begin(115200);			  // @suppress("Ambiguous problem")
+	Serial.begin(115200); // @suppress("Ambiguous problem")
+
+	pir = new PIR(MOTION_SENSOR);
+	pinMode(buttonPin, INPUT_PULLUP);
+
+	buzzer = new BUZZER(pir);
+	thermometer = new Thermometer(DHTPIN, led, buzzer);
+	humidity = new Humidity(DHTPIN, led, buzzer);
 
 	//OLED Screen Initialization & Setup
 	display.init();
@@ -152,10 +156,6 @@ void setup()
 	display.display();
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
-	pinMode(buttonPin, INPUT_PULLUP);
-
-	pir = new PIR(MOTION_SENSOR);
-	buzzer = new BUZZER(pir, thermometer, humidity);
 
 	connectToHotspot();
 	writeToServer();
@@ -225,9 +225,14 @@ void statusUpdate()
 		Serial.println(humidity->getHumStatus(humStatus));
 		Serial.print("PIR sensor status: ");
 		Serial.println(pir->getPIRStatus());
+		Serial.print("Buzzer alert status: ");
+		Serial.println(buzzer->getBuzzerStatus());
+		Serial.print("Buzzer snooze active: ");
+		Serial.println(buzzer->getBuzzerSnooze());
 		Serial.println("----------------");
 	}
 }
+
 void readButton()
 {
 	//Read button state (pressed or not pressed?)
@@ -237,6 +242,7 @@ void readButton()
 	{
 		//Add 2 mins to alert wait
 		buzzer->alertMillis = buzzer->alertMillis - 120000; 
+		buzzer->buzzerSnooze = true;
 	}
 }
 
@@ -275,10 +281,10 @@ void loop()
 		pir->motionSensor(sdcard); //Call taskD code
 		statusUpdate();			   // report status update
 		sdcard->writeToSDCard();
-    readButton();
+		readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-		writeToServer();									 // write to server
-	
+		writeToServer();								 // write to server
+
 		//PIR Sensor Status
 		if(pir->getPIRStatus()=="OCCUPIED"){
 			isOccupied = true;
