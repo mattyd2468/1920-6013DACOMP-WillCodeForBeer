@@ -31,6 +31,8 @@ const String GROUPNAME = "WillCodeForBeer";
 const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
 int serverMillis = 0;					 // time in millis since last written to server
 
+String date; // variable to store the date
+
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
@@ -103,7 +105,9 @@ void writeToServer()
 				Serial.println("------");
 				Serial.println("Date = " + hClient.header("Date"));
 				Serial.println("-------");
-				Serial.println(hClient.getString());
+				 Serial.println(hClient.getString());
+
+				date = hClient.header("Date");
 			}
 		}
 		else
@@ -122,7 +126,7 @@ void connectToHotspot(){
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		delay(250);
-		Serial.println(".");
+		Serial.print(".");
 	}
 	Serial.print("Connected as :");
 	Serial.println(WiFi.localIP());
@@ -151,10 +155,12 @@ void setup()
 	pinMode(buttonPin, INPUT_PULLUP);
 
 	pir = new PIR(MOTION_SENSOR);
-	sdcard = new SDCard(SD_PIN);
 	buzzer = new BUZZER(pir, thermometer, humidity);
 
 	connectToHotspot();
+	writeToServer();
+
+	sdcard = new SDCard(SD_PIN, date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
 
 /**
@@ -172,9 +178,11 @@ void powerOnTest()
 	{
 		Serial.println("Humidity Error");
 	}
+
 	if (WiFi.status() != WL_CONNECTED){
 		Serial.println("WiFi Error");
 	}
+
 	firstLoop = false;
 }
 
@@ -270,7 +278,6 @@ void loop()
     readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
 		writeToServer();									 // write to server
-	
 	
 		//PIR Sensor Status
 		if(pir->getPIRStatus()=="OCCUPIED"){
