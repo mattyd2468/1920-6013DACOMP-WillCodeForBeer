@@ -22,7 +22,7 @@ boolean BUZZER::timeDiff(unsigned long start, int specifiedDelay){
 
 void BUZZER::buzz() {
 	ledcWrite(channel, dutyCycle);
-	delay(300);
+	delay(1000);
 	ledcWrite(channel, 0);
 }
 

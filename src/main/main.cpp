@@ -13,6 +13,14 @@
 #include <WString.h>
 #include "SDCard.h"
 #include <Vector.h>
+#include <Adafruit_GFX.h>
+#include <SSD1306.h>
+
+//OLED Screen
+SSD1306 display(0x3c, 21, 22);	//OLED display
+const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
+unsigned long oledChangeTime = 0;	//Time since OLED screen was last updated
+bool isOccupied = false;
 
 //WiFi
 const char *SSID = "Matt";
@@ -21,7 +29,7 @@ const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
 const int TIMEOUT = 10000;
 const String GROUPNAME = "WillCodeForBeer";
 const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
-int serverMillis = 0;				  // time in millis since last written to server
+int serverMillis = 0;					 // time in millis since last written to server
 
 String date; // variable to store the date
 
@@ -32,7 +40,7 @@ const int MOTION_SENSOR = 15;	// PIR sensor pin
 LED *led = new LED(26, 33, 32); // the LED which shows the status of the sensors, pins 23,22,21
 const int DHT11_DELAY = 2000;	// delay for the DHT11 sensor to take readings, must be 2 seconds
 int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
-
+const int buttonPin = 13;
 const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must be every 5 seconds
 int statusMillis = 0;				  // time in millis since last status update
 
@@ -40,6 +48,7 @@ int statusMillis = 0;				  // time in millis since last status update
 bool firstLoop = true; //Variable to store if it is the first loop or not
 double potVal = 0;	   // Variable to store temperature value
 double humVal = 0;	   // Variable to store the humidity value
+int buttonState = 0;   //Variable for button, is not pressed when it is 0
 
 //Setting up the objects
 Thermometer *thermometer = NULL;
@@ -109,20 +118,7 @@ void writeToServer()
 	}
 }
 
-/**
- * This method is used at startup and initialises our sensors and pins
- */
-void setup()
-{
-	thermometer = new Thermometer(DHTPIN, led);
-	humidity = new Humidity(DHTPIN, led);
-
-	Serial.begin(115200);			  // @suppress("Ambiguous problem")
-	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
-
-	pir = new PIR(MOTION_SENSOR);
-	buzzer = new BUZZER(pir, thermometer, humidity);
-
+void connectToHotspot(){
 	//WiFI
 	Serial.print("Connecting to ");
 	Serial.println(SSID);
@@ -134,6 +130,34 @@ void setup()
 	}
 	Serial.print("Connected as :");
 	Serial.println(WiFi.localIP());
+}
+
+/**
+ * This method is used at startup and initialises our sensors and pins
+ */
+void setup()
+{
+	thermometer = new Thermometer(DHTPIN, led);
+	humidity = new Humidity(DHTPIN, led);
+	Serial.begin(115200);			  // @suppress("Ambiguous problem")
+
+	//OLED Screen Initialization & Setup
+	display.init();
+	display.clear();
+	display.flipScreenVertically();
+	display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_16);
+	display.drawString(0, 0, "WillCodeForBeer");
+	display.drawString(0, 18, "Running Setup()");      
+	display.display();
+
+	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
+	pinMode(buttonPin, INPUT_PULLUP);
+
+	pir = new PIR(MOTION_SENSOR);
+	buzzer = new BUZZER(pir, thermometer, humidity);
+
+	connectToHotspot();
 	writeToServer();
 
 	sdcard = new SDCard(SD_PIN, date); // set up SD card, must be done after wifi setup otherwise date and time wont work
@@ -155,6 +179,9 @@ void powerOnTest()
 		Serial.println("Humidity Error");
 	}
 
+	if (WiFi.status() != WL_CONNECTED){
+		Serial.println("WiFi Error");
+	}
 
 	firstLoop = false;
 }
@@ -201,6 +228,34 @@ void statusUpdate()
 		Serial.println("----------------");
 	}
 }
+void readButton()
+{
+	//Read button state (pressed or not pressed?)
+	buttonState = digitalRead(buttonPin);
+	//if button pressed add 2 mins to the time buzzer will next buzz
+	if (buttonState == LOW) //Because using pullup resistor if button is pressed it will be LOW
+	{
+		//Add 2 mins to alert wait
+		buzzer->alertMillis = buzzer->alertMillis - 120000; 
+	}
+}
+
+void updateScreen(int temp, int hum, bool isOccupied){
+	display.clear();
+	display.drawString(0, 0, "Temp:"); //Temp Label   
+	display.drawString(0, 18, "Humidity:"); //Humidity Label
+	display.drawString(75,0, String(temp)); //Temp value
+	display.drawString(75,18, String(hum)); //Humidity value
+    
+	//Occupied/Vacant value
+	if(isOccupied){
+		display.drawString(0, 36, "Occupied");
+	}
+	else {
+		display.drawString(0, 36, "Vacant");
+	}
+	display.display();
+}
 
 /**
  * This method is our main loop logic
@@ -220,7 +275,22 @@ void loop()
 		pir->motionSensor(sdcard); //Call taskD code
 		statusUpdate();			   // report status update
 		sdcard->writeToSDCard();
+    readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-		writeToServer();								 // write to server
+		writeToServer();									 // write to server
+	
+		//PIR Sensor Status
+		if(pir->getPIRStatus()=="OCCUPIED"){
+			isOccupied = true;
+		}
+		else {
+			isOccupied = false;
+		}
+
+		// update oled screen every 250 milliseconds to prevent flicker
+		if (timeDiff(oledChangeTime, oledRefreshTime)) {
+			oledChangeTime = millis();
+			updateScreen(tempHum.temperature, tempHum.humidity, isOccupied); // Updating OLED Screen
+		}
 	}
 }
