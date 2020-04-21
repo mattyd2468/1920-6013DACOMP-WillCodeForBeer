@@ -8,6 +8,7 @@ When pulling changes from stash you will find that you will get compile errors. 
 
 ### Useful Link
 http://willcodeforbeer12345.azurewebsites.net/
+https://www.instructables.com/id/How-to-use-a-Push-Button-Arduino-Tutorial/ --this is task G snooze button info
 
 ### PlatformIO Configuration!
 
