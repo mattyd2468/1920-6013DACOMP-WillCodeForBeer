@@ -13,17 +13,17 @@
 #include <WString.h>
 #include "SDCard.h"
 #include <Vector.h>
-#include <Adafruit_GFX.h>
-#include <SSD1306.h>
+// #include <Adafruit_GFX.h>
+// #include <SSD1306.h>
 
-//OLED Screen
-SSD1306 display(0x3c, 21, 22);			   //OLED display
-const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
-unsigned long oledChangeTime = 0;		   //Time since OLED screen was last updated
-bool isOccupied = false;
+// //OLED Screen
+// SSD1306 display(0x3c, 21, 22);			   //OLED display
+// const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
+// unsigned long oledChangeTime = 0;		   //Time since OLED screen was last updated
+// bool isOccupied = false;
 
 //WiFi
-const char *SSID = "Matt";
+const char *SSID = "iPhone";
 const char *PASS = "password";
 const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
 const int TIMEOUT = 10000;
@@ -117,7 +117,8 @@ void writeToServer()
 	}
 }
 
-void connectToHotspot(){
+void connectToHotspot()
+{
 	//WiFI
 	Serial.print("Connecting to ");
 	Serial.println(SSID);
@@ -139,21 +140,20 @@ void setup()
 	Serial.begin(115200); // @suppress("Ambiguous problem")
 
 	pir = new PIR(MOTION_SENSOR);
-	pinMode(buttonPin, INPUT_PULLUP);
-
+	pinMode(buttonPin, INPUT);
 	buzzer = new BUZZER(pir);
-	thermometer = new Thermometer(DHTPIN, led, buzzer);
-	humidity = new Humidity(DHTPIN, led, buzzer);
+	thermometer = new Thermometer(DHTPIN, led);
+	humidity = new Humidity(DHTPIN, led);
 
-	//OLED Screen Initialization & Setup
-	display.init();
-	display.clear();
-	display.flipScreenVertically();
-	display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.setFont(ArialMT_Plain_16);
-	display.drawString(0, 0, "WillCodeForBeer");
-	display.drawString(0, 18, "Running Setup()");      
-	display.display();
+	// //OLED Screen Initialization & Setup
+	// display.init();
+	// display.clear();
+	// display.flipScreenVertically();
+	// display.setTextAlignment(TEXT_ALIGN_LEFT);
+	// display.setFont(ArialMT_Plain_16);
+	// display.drawString(0, 0, "WillCodeForBeer");
+	// display.drawString(0, 18, "Running Setup()");
+	// display.display();
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
@@ -179,7 +179,8 @@ void powerOnTest()
 		Serial.println("Humidity Error");
 	}
 
-	if (WiFi.status() != WL_CONNECTED){
+	if (WiFi.status() != WL_CONNECTED)
+	{
 		Serial.println("WiFi Error");
 	}
 
@@ -238,30 +239,39 @@ void readButton()
 	//Read button state (pressed or not pressed?)
 	buttonState = digitalRead(buttonPin);
 	//if button pressed add 2 mins to the time buzzer will next buzz
-	if (buttonState == LOW) //Because using pullup resistor if button is pressed it will be LOW
+	if (buttonState == HIGH) //Because using pullup resistor if button is pressed it will be LOW
 	{
-		//Add 2 mins to alert wait
-		buzzer->alertMillis = buzzer->alertMillis - 120000; 
+		//set snooze flag to true
+		Serial.print("Snooze started");
 		buzzer->buzzerSnooze = true;
+		buzzer->alertMillis = buzzer->alertMillis - 120000;
+	}
+	else
+	{
+		if (timeDiff(buzzer->alertMillis, 120000))
+		{
+			buzzer->alertMillis = millis();
+			buzzer->buzzerSnooze = false;
+		}
 	}
 }
 
-void updateScreen(int temp, int hum, bool isOccupied){
-	display.clear();
-	display.drawString(0, 0, "Temp:"); //Temp Label   
-	display.drawString(0, 18, "Humidity:"); //Humidity Label
-	display.drawString(75,0, String(temp)); //Temp value
-	display.drawString(75,18, String(hum)); //Humidity value
-    
-	//Occupied/Vacant value
-	if(isOccupied){
-		display.drawString(0, 36, "Occupied");
-	}
-	else {
-		display.drawString(0, 36, "Vacant");
-	}
-	display.display();
-}
+// void updateScreen(int temp, int hum, bool isOccupied){
+// 	display.clear();
+// 	display.drawString(0, 0, "Temp:"); //Temp Label
+// 	display.drawString(0, 18, "Humidity:"); //Humidity Label
+// 	display.drawString(75,0, String(temp)); //Temp value
+// 	display.drawString(75,18, String(hum)); //Humidity value
+
+// 	//Occupied/Vacant value
+// 	if(isOccupied){
+// 		display.drawString(0, 36, "Occupied");
+// 	}
+// 	else {
+// 		display.drawString(0, 36, "Vacant");
+// 	}
+// 	display.display();
+// }
 
 /**
  * This method is our main loop logic
@@ -282,21 +292,21 @@ void loop()
 		statusUpdate();			   // report status update
 		sdcard->writeToSDCard();
 		readButton();
-		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-		writeToServer();								 // write to server
+		buzzer->whichAlertToMake(tempStatus, humStatus, buzzer->buzzerSnooze); // Check if noise should be made
+		writeToServer();													   // write to server
 
-		//PIR Sensor Status
-		if(pir->getPIRStatus()=="OCCUPIED"){
-			isOccupied = true;
-		}
-		else {
-			isOccupied = false;
-		}
+		// //PIR Sensor Status
+		// if(pir->getPIRStatus()=="OCCUPIED"){
+		// 	isOccupied = true;
+		// }
+		// else {
+		// 	isOccupied = false;
+		// }
 
-		// update oled screen every 250 milliseconds to prevent flicker
-		if (timeDiff(oledChangeTime, oledRefreshTime)) {
-			oledChangeTime = millis();
-			updateScreen(tempHum.temperature, tempHum.humidity, isOccupied); // Updating OLED Screen
-		}
+		// // update oled screen every 250 milliseconds to prevent flicker
+		// if (timeDiff(oledChangeTime, oledRefreshTime)) {
+		// 	oledChangeTime = millis();
+		// 	updateScreen(tempHum.temperature, tempHum.humidity, isOccupied); // Updating OLED Screen
+		// }
 	}
 }

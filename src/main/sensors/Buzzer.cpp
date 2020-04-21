@@ -55,9 +55,9 @@ void BUZZER::audibleRedAlert() {
 /**
  * Check if it should call method to make noise
  */
-void BUZZER::whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus)
+void BUZZER::whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus, bool buzzerSnooze)
 {
-	if (pir->getPIRStatus() == "OCCUPIED") {
+	if (pir->getPIRStatus() == "OCCUPIED" && buzzerSnooze == false) {
 		if (tempStatus == TemperatureStatus::RED || humStatus == HumidityStatus::RED) {
 			this->buzzerStatus = BuzzerStatus::RED;
 			audibleRedAlert();
