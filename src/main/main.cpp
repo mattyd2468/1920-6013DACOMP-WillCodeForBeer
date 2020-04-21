@@ -50,6 +50,11 @@ double potVal = 0;	   // Variable to store temperature value
 double humVal = 0;	   // Variable to store the humidity value
 int buttonState = 0;   //Variable for button, is not pressed when it is 0
 
+//debouncing variables
+long lastDebounceTime = 0; // the last time the output pin was toggled
+long debounceDelay = 50;   // the debounce time; increase if the output flickers
+bool snoozeBool = false;
+
 //Setting up the objects
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
@@ -157,8 +162,8 @@ void setup()
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
-	connectToHotspot();
-	writeToServer();
+	//connectToHotspot();
+	//writeToServer();
 
 	sdcard = new SDCard(SD_PIN, date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
@@ -238,21 +243,31 @@ void readButton()
 {
 	//Read button state (pressed or not pressed?)
 	buttonState = digitalRead(buttonPin);
-	//if button pressed add 2 mins to the time buzzer will next buzz
-	if (buttonState == HIGH) //Because using pullup resistor if button is pressed it will be LOW
+
+	//filter out any noise by setting a time buffer
+	if ((millis() - lastDebounceTime) > debounceDelay)
 	{
-		//set snooze flag to true
-		Serial.print("Snooze started");
-		buzzer->buzzerSnooze = true;
-		buzzer->alertMillis = buzzer->alertMillis - 120000;
-	}
-	else
-	{
-		if (timeDiff(buzzer->alertMillis, 120000))
+
+		//if button pressed add 2 mins to the time buzzer will next buzz
+		if (buttonState == HIGH) //Because using pullup resistor if button is pressed it will be LOW
 		{
-			buzzer->alertMillis = millis();
-			buzzer->buzzerSnooze = false;
+			//set snooze flag to true
+			snoozeBool = true;
+			Serial.print("Snooze started" + snoozeBool);
+			buzzer->buzzerSnooze = snoozeBool;
+			buzzer->alertMillis = 0;
 		}
+		else
+		{
+			if (timeDiff(buzzer->alertMillis, 120000))
+			{	
+				buzzer->alertMillis = millis();
+				snoozeBool = false;
+				buzzer->buzzerSnooze = snoozeBool;
+				Serial.print("Snooze finished" + snoozeBool);
+			}
+		}
+		lastDebounceTime = millis(); //set the current time
 	}
 }
 
@@ -292,7 +307,7 @@ void loop()
 		statusUpdate();			   // report status update
 		sdcard->writeToSDCard();
 		readButton();
-		buzzer->whichAlertToMake(tempStatus, humStatus, buzzer->buzzerSnooze); // Check if noise should be made
+		buzzer->whichAlertToMake(tempStatus, humStatus, snoozeBool); // Check if noise should be made
 		writeToServer();													   // write to server
 
 		// //PIR Sensor Status
