@@ -13,6 +13,7 @@
 #include <WString.h>
 #include "SDCard.h"
 #include <Vector.h>
+#include <../src/main/enums/ButtonState.h>
 
 //WiFi
 const char *SSID = "Matt";
@@ -26,13 +27,21 @@ int serverMillis = 0;				  // time in millis since last written to server
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
-const int MOTION_SENSOR = 15;	// PIR sensor pin
-LED *led = new LED(26, 33, 32); // the LED which shows the status of the sensors, pins 23,22,21
-const int DHT11_DELAY = 2000;	// delay for the DHT11 sensor to take readings, must be 2 seconds
-int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
+const int MOTION_SENSOR = 15;		// PIR sensor pin
+LED *led = new LED(26, 33, 32); 	// the LED which shows the status of the sensors, pins 23,22,21
+const int DHT11_DELAY = 2000;		// delay for the DHT11 sensor to take readings, must be 2 seconds
+int DHT11Millis = 0;				// time in millis since DHT11 sensor took readings
+const int PUSH_BUTTON = 14;			// Push button pin
 
-const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must start as 5 seconds
-int statusMillis = 0;				  // time in millis since last status update
+ButtonState outputButtonCurrent;	// The current state of the button
+const int BOUNCE_DELAY_MS = 1000;	// Delays the button reading by 1 second for debouncing. 
+ButtonState debouncedState = OFF;	// The debounced state of the button, defaults to off.
+ButtonState bouncedState = OFF;		// The bounced state of the button, defaults to off.
+long buttonLastChange;				// The duration since the last change in state of the button.
+
+int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must start as 5 seconds
+int statusMillis = 0;			// time in millis since last status update
+const int STATUS_DELAY_VALUES[6] = {5000, 10000, 30000, 60000, 120000, 300000}; //The values at which output can be logged to the console. 
 
 const int MEMORY_UPDATE_DELAY = 5000; // delay for the volatile memory update, must be every 5 seconds
 int memoryMillis = 0;				  // time in millis since last memory update
@@ -130,11 +139,13 @@ void setup()
 	WiFi.begin(SSID, PASS);
 	while (WiFi.status() != WL_CONNECTED)
 	{
-		delay(250);
+	delay(250);
 		Serial.println(".");
 	}
 	Serial.print("Connected as :");
 	Serial.println(WiFi.localIP());
+
+	pinMode(PUSH_BUTTON, INPUT);
 }
 
 /**
@@ -198,9 +209,48 @@ void statusUpdate()
 	}
 }
 
+String formatUpdateDelay(int delay)
+{
+
+	String response;
+
+	int seconds = delay/1000;
+
+	if(seconds < 60) {
+		response = (String)seconds + "s";
+	} else {
+		int minutes = seconds/60;
+		response = (String)minutes + " mins";
+	}
+
+	return response;
+
+}
+
+/**
+ *	This method will cycle the list of output intervals, 
+ *	and increment the value used to be the next in the list.
+ */
+
+void updateStatusOutputInterval() 
+{
+	if(STATUS_UPDATE_DELAY == 300000) {
+		STATUS_UPDATE_DELAY = STATUS_DELAY_VALUES[0];
+	} else {
+		for(int i = 0; i < sizeof(STATUS_DELAY_VALUES); i++) {
+			if (STATUS_DELAY_VALUES[i] == STATUS_UPDATE_DELAY) {
+				STATUS_UPDATE_DELAY = STATUS_DELAY_VALUES[i+1];
+				break;
+			}
+		}
+	}
+	Serial.print("Output interval is now " );
+	Serial.println(formatUpdateDelay(STATUS_UPDATE_DELAY));
+}
+
 /**
  *	This method will check when results were last written to memory, and if >5 seconds ago,	
- *	if will write the most recently recorded values.
+ *	it will write the most recently recorded values.
  */
 void storeToVolatileMemory()
 {
@@ -218,6 +268,26 @@ void storeToVolatileMemory()
 
 	}
 
+}
+/**
+ * This method will retrieve the state of the button, 
+ * ensuring the button is held down for ~1 second.
+ */
+ButtonState getButtonState() {
+	ButtonState now = OFF;
+	if (digitalRead(PUSH_BUTTON)) {
+		now = ON;
+	}
+
+	if (now != bouncedState) {
+		buttonLastChange = millis();
+		bouncedState = now;
+	}
+
+	if (timeDiff(buttonLastChange,BOUNCE_DELAY_MS)) {
+		debouncedState = now;
+	}
+	return debouncedState;
 }
 
 /**
@@ -240,6 +310,19 @@ void loop()
 		storeToVolatileMemory();
 		sdcard->writeToSDCard(logging);
 		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
-		writeToServer();									 // write to server
+		writeToServer(); // write to server
+
+		ButtonState now = getButtonState();
+		if (now != outputButtonCurrent) {
+			outputButtonCurrent = now;
+			switch (outputButtonCurrent) {
+				case ON:
+					updateStatusOutputInterval();
+					delay(250);
+					break;
+				case OFF:
+					break;
+			}
+		}
 	}
 }
