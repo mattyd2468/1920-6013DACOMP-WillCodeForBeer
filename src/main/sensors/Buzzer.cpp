@@ -65,7 +65,7 @@ void BUZZER::whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humSt
 			audibleAmberAlert();
 			this->buzzerStatus = BuzzerStatus::AMBER;
 		}
-	} else {
+	} else if(buzzerSnooze == false){
 		// building is vacant
 		this->buzzerStatus = BuzzerStatus::NONE;
 	}
