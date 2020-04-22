@@ -253,7 +253,6 @@ void readButton()
 		{
 			//set snooze flag to true
 			snoozeBool = true;
-			Serial.print("Snooze started" + snoozeBool);
 			buzzer->buzzerSnooze = snoozeBool;
 			buzzer->alertMillis = 0;
 		}
@@ -264,7 +263,6 @@ void readButton()
 				buzzer->alertMillis = millis();
 				snoozeBool = false;
 				buzzer->buzzerSnooze = snoozeBool;
-				Serial.print("Snooze finished" + snoozeBool);
 			}
 		}
 		lastDebounceTime = millis(); //set the current time
