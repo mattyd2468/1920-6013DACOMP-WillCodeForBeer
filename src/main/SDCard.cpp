@@ -139,6 +139,8 @@ SDCard::SDCard(int CS_PIN, String date)
 	pinMode(10, OUTPUT); // this needs to be kept as an empty pin in order for the card to work!
 	this->date = date;
 
+	this->CS_PIN = CS_PIN;
+	
 	SD.begin(CS_PIN);
 	if (!SD.begin(CS_PIN))
 	{

@@ -4,13 +4,15 @@
 #include "../src/main/sensors/Humidity.cpp"
 #include "../src/main/sensors/LED.cpp"
 #include "../src/main/sensors/PIR.cpp"
+#include "../src/main/sensors/Buzzer.cpp"
 #include "../src/main/SDCard.cpp"
 
 LED *led;
 Thermometer *temperature;
 Humidity *humidity;
 PIR *pir;
-SDCard* sdcard;
+SDCard *sdcard;
+BUZZER *buzzer;
 DHTesp dht; // object to store the DHT11 sensor
 TempAndHumidity tempHum;
 
@@ -22,18 +24,13 @@ void setup()
 
     UNITY_BEGIN(); // IMPORTANT LINE!
     led = new LED(26, 33, 32);
-    temperature = new Thermometer(4, led);
-    humidity = new Humidity(4, led);
     pir = new PIR(15);
+    buzzer = new BUZZER(pir);
+    temperature = new Thermometer(4, led, buzzer);
+    humidity = new Humidity(4, led, buzzer);
     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
     String date = "Fri, 10 Apr 2020 12:48:40 GMT";
     sdcard = new SDCard(5, date);
-
-    pinMode(15, INPUT);
-    pinMode(4, INPUT);
-    pinMode(26, OUTPUT);
-    pinMode(33, OUTPUT);
-    pinMode(32, OUTPUT);
 }
 
 /**
@@ -216,16 +213,31 @@ void test_PIR_vacant()
     TEST_ASSERT_EQUAL(PIRStatus::VACANT, pir->motionSensorStatus);
 }
 
-void test_PIR_occupied()
-{
-    digitalWrite(15, HIGH);
-    pir->motionSensor(sdcard);
-    TEST_ASSERT_EQUAL(PIRStatus::OCCUPIED, pir->motionSensorStatus);
-}
-
 /**
  * Test scripts for Task A
  */
+void test_dht11_pin()
+{
+    TEST_ASSERT_EQUAL(4, temperature->potPin);
+    TEST_ASSERT_EQUAL(4, humidity->potPin);
+}
+
+void test_led_pin()
+{
+    TEST_ASSERT_EQUAL(26, led->redPin);
+    TEST_ASSERT_EQUAL(33, led->greenPin);
+    TEST_ASSERT_EQUAL(32, led->bluePin);
+}
+
+void test_pir_pin()
+{
+    TEST_ASSERT_EQUAL(15, pir->MOTION_SENSOR);
+}
+
+void test_sd_pin()
+{
+    TEST_ASSERT_EQUAL(5, sdcard->CS_PIN);
+}
 
 void test_Temp_Not_NAN()
 {
@@ -264,6 +276,53 @@ void test_Temp_Valid1()
 }
 
 /**
+ * Test scripts for Task G
+ */
+
+void test_buzzer_red()
+{
+    pir->motionSensorStatus = PIRStatus::OCCUPIED;
+    buzzer->whichAlertToMake(TemperatureStatus::RED, HumidityStatus::GREEN);
+    TEST_ASSERT_EQUAL(BuzzerStatus::RED, buzzer->buzzerStatus);
+}
+
+void test_buzzer_amber()
+{
+    pir->motionSensorStatus = PIRStatus::OCCUPIED;
+    buzzer->whichAlertToMake(TemperatureStatus::AMBER, HumidityStatus::GREEN);
+    TEST_ASSERT_EQUAL(BuzzerStatus::AMBER, buzzer->buzzerStatus);
+}
+
+void test_buzzer_green()
+{
+    pir->motionSensorStatus = PIRStatus::OCCUPIED;
+    buzzer->whichAlertToMake(TemperatureStatus::GREEN, HumidityStatus::GREEN);
+    TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
+}
+
+void test_buzzer_not_Active_dht11_amber()
+{
+
+    pir->motionSensorStatus = PIRStatus::VACANT;
+    buzzer->whichAlertToMake(TemperatureStatus::AMBER, HumidityStatus::GREEN);
+    TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
+}
+
+void test_buzzer_not_Active_dht11_green()
+{
+    pir->motionSensorStatus = PIRStatus::VACANT;
+    buzzer->whichAlertToMake(TemperatureStatus::GREEN, HumidityStatus::GREEN);
+    TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
+}
+
+void test_buzzer_not_Active_dht11_red()
+{
+    pir->motionSensorStatus = PIRStatus::VACANT;
+    buzzer->whichAlertToMake(TemperatureStatus::RED, HumidityStatus::GREEN);
+    TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
+}
+
+/**
  * Test scripts for Task H
  */
 
@@ -295,10 +354,19 @@ void test_SD_Card_File_Created_Correctly()
 /*
 * Run The Tests
 */
-void runPowerOnScript(){
+void runPowerOnScript()
+{
     Serial.println("=========================================");
     Serial.println("Testing Power on (Task A script)");
     Serial.println("=========================================");
+    RUN_TEST(test_dht11_pin);
+    delay(1000);
+    RUN_TEST(test_led_pin);
+    delay(1000);
+    RUN_TEST(test_pir_pin);
+    delay(1000);
+    RUN_TEST(test_sd_pin);
+    delay(1000);
     RUN_TEST(test_Temp_Not_NAN);
     delay(1000);
     RUN_TEST(test_Hum_Not_NAN);
@@ -385,12 +453,31 @@ void runDHT11Script()
 
 void runPIRScript()
 {
+    Serial.println("=========================================");
+    Serial.println("Testing PIR sensor (Task D script)");
+    Serial.println("=========================================");
     RUN_TEST(test_PIR_status);
     delay(1000);
     RUN_TEST(test_PIR_vacant);
     delay(1000);
-    RUN_TEST(test_PIR_occupied);
+}
+
+void runBuzzerScript()
+{
+    Serial.println("=========================================");
+    Serial.println("Testing Buzzer (Task G script)");
+    Serial.println("=========================================");
+    RUN_TEST(test_buzzer_amber);
     delay(1000);
+    RUN_TEST(test_buzzer_red);
+    delay(1000);
+    RUN_TEST(test_buzzer_green);
+    delay(1000);
+    RUN_TEST(test_buzzer_not_Active_dht11_amber);
+    delay(1000);
+    RUN_TEST(test_buzzer_not_Active_dht11_green);
+    delay(1000);
+    RUN_TEST(test_buzzer_not_Active_dht11_red);
 }
 
 void runSDCardScript()
@@ -404,13 +491,15 @@ void runSDCardScript()
     delay(1000);
 }
 
+
 void loop()
 {
     runPowerOnScript(); // Task A
-    runLEDScript();   // Task B
-    runDHT11Script(); // Task B
-    runPIRScript(); // Task D
-    runSDCardScript(); // Task H
+    runLEDScript();     // Task B
+    runDHT11Script();   // Task B
+    runPIRScript();     // Task D
+    runBuzzerScript();  // Task G
+    runSDCardScript();  // Task H
 
     UNITY_END(); // stop unit testing
 }

@@ -4,12 +4,14 @@
 // #include "../src/main/SDCard.cpp"
 // #include "../src/main/sensors/Thermometer.cpp"
 // #include "../src/main/sensors/Humidity.cpp"
+// #include "../src/main/sensors/Buzzer.cpp"
 // #include "../src/main/sensors/LED.cpp"
 
 // LED *led;
 // Thermometer *temperature;
 // Humidity *humidity;
 // PIR *pir;
+// BUZZER* buzzer;
 // SDCard *sdcard;
 // DHTesp dht; // object to store the DHT11 sensor
 // TempAndHumidity tempHum;
@@ -22,10 +24,11 @@
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
 //     led = new LED(26, 33, 32);
-//     temperature = new Thermometer(4, led);
-//     humidity = new Humidity(4, led);
-//     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
 //     pir = new PIR(15);
+//     buzzer = new BUZZER(pir);
+//     temperature = new Thermometer(4, led, buzzer);
+//     humidity = new Humidity(4, led, buzzer);
+//     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
 //     String date = "Fri, 10 Apr 2020 12:48:40 GMT";
 //     sdcard = new SDCard(5, date);
 

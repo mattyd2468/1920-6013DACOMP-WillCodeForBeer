@@ -2,6 +2,8 @@
 // #include <unity.h>
 // #include "../src/main/sensors/Thermometer.cpp"
 // #include "../src/main/sensors/Humidity.cpp"
+// #include "../src/main/sensors/PIR.cpp"
+// #include "../src/main/sensors/Buzzer.cpp"
 // #include "../src/main/sensors/LED.cpp"
 
 // /**
@@ -13,6 +15,8 @@
 // LED *led;
 // Thermometer *temperature;
 // Humidity *humidity;
+// PIR* pir;
+// BUZZER* buzzer;
 
 // void setup()
 // {
@@ -22,8 +26,10 @@
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
 //     led = new LED(27, 33, 32);
-//     temperature = new Thermometer(4, led);
-//     humidity = new Humidity(4, led);
+//     pir = new PIR(15);
+//     buzzer = new BUZZER(pir);
+//     temperature = new Thermometer(4, led, buzzer);
+//     humidity = new Humidity(4, led, buzzer);
 
 //     pinMode(4, INPUT);
 //     pinMode(26, OUTPUT);

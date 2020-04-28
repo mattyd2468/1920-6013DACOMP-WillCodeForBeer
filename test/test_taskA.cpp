@@ -4,12 +4,14 @@
 // #include "../src/main/SDCard.cpp"
 // #include "../src/main/sensors/Thermometer.cpp"
 // #include "../src/main/sensors/Humidity.cpp"
+// #include "../src/main/sensors/Buzzer.cpp"
 // #include "../src/main/sensors/LED.cpp"
 
 // LED *led;
 // Thermometer *temperature;
 // Humidity *humidity;
 // PIR *pir;
+// BUZZER *buzzer;
 // SDCard *sdcard;
 // DHTesp dht; // object to store the DHT11 sensor
 // TempAndHumidity tempHum;
@@ -22,18 +24,13 @@
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
 //     led = new LED(26, 33, 32);
-//     temperature = new Thermometer(4, led);
-//     humidity = new Humidity(4, led);
-//     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
 //     pir = new PIR(15);
+//     buzzer = new BUZZER(pir);
+//     temperature = new Thermometer(4, led, buzzer);
+//     humidity = new Humidity(4, led, buzzer);
+//     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
 //     String date = "Sun, 12 Apr 2020 23:21:40 GMT";
 //     sdcard = new SDCard(5, date);
-
-//     pinMode(15, INPUT);
-//     pinMode(4, INPUT);
-//     pinMode(26, OUTPUT);
-//     pinMode(33, OUTPUT);
-//     pinMode(32, OUTPUT);
 // }
 
 // /**
@@ -43,6 +40,28 @@
 // /**
 //  * Test scripts for Task A
 //  */
+// void test_dht11_pin()
+// {
+//     TEST_ASSERT_EQUAL(4, temperature->potPin);
+//     TEST_ASSERT_EQUAL(4, humidity->potPin);
+// }
+
+// void test_led_pin()
+// {
+//     TEST_ASSERT_EQUAL(26, led->redPin);
+//     TEST_ASSERT_EQUAL(33, led->greenPin);
+//     TEST_ASSERT_EQUAL(32, led->bluePin);
+// }
+
+// void test_pir_pin()
+// {
+//     TEST_ASSERT_EQUAL(15, pir->MOTION_SENSOR);
+// }
+
+// void test_sd_pin()
+// {
+//     TEST_ASSERT_EQUAL(5, sdcard->CS_PIN);
+// }
 
 // void test_Temp_Not_NAN()
 // {
@@ -89,6 +108,14 @@
 //     Serial.println("=========================================");
 //     Serial.println("Testing Power on (Task A script)");
 //     Serial.println("=========================================");
+//     RUN_TEST(test_dht11_pin);
+//     delay(1000);
+//     RUN_TEST(test_led_pin);
+//     delay(1000);
+//     RUN_TEST(test_pir_pin);
+//     delay(1000);
+//     RUN_TEST(test_sd_pin);
+//     delay(1000);
 //     RUN_TEST(test_Temp_Not_NAN);
 //     delay(1000);
 //     RUN_TEST(test_Hum_Not_NAN);
