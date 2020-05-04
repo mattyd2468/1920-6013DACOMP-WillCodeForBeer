@@ -1,5 +1,6 @@
 #include "Thermometer.h"
 #include "LED.h"
+#include "Buzzer.h"
 #include <Arduino.h>
 
 Thermometer::Thermometer()
@@ -7,13 +8,14 @@ Thermometer::Thermometer()
 	// do nothing
 }
 
-Thermometer::Thermometer(int potPin, LED *led)
+Thermometer::Thermometer(int potPin, LED *led, BUZZER *buzzer)
 {
 	this->potPin = potPin;
 	pinMode(this->potPin, INPUT);
 	this->potVal = 0;
 
 	this->led = led;
+	this->buzzer = buzzer;
 }
 
 TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
@@ -22,7 +24,6 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 
 	if (potVal >= 18 && potVal <= 23)
 	{ // If the value is between 18 and 23 degrees - GREEN
-		led->currentColour = LEDColour::GREEN;
 		led->currentTempStatus = TemperatureStatus::GREEN;
 		if (led->tempStatusHasChanged())
 		{
@@ -33,25 +34,25 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 	}
 	else if (potVal >= 16 && potVal <= 27)
 	{ // If the value is between 16 and 27 degrees - YELLOW
-		led->currentColour = LEDColour::YELLOW;
 		led->currentTempStatus = TemperatureStatus::AMBER;
 
 		if (led->tempStatusHasChanged())
 		{
 			Serial.println(
 				"Temperature status has changed - status is now amber!");
+				buzzer->buzz();
 		}
 		return TemperatureStatus::AMBER;
 	}
 	else
 	{ // Otherwise - RED
-		led->currentColour = LEDColour::RED;
 		led->currentTempStatus = TemperatureStatus::RED;
 
 		if (led->tempStatusHasChanged())
 		{
 			Serial.println(
 				"Temperature status has changed - status is now red!");
+				buzzer->buzz();
 		}
 		return TemperatureStatus::RED;
 	}
