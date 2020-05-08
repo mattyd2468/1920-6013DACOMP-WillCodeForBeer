@@ -6,6 +6,7 @@
 #include "../main/sensors/LED.h"
 #include "../main/sensors/PIR.h"
 #include "../src/main/sensors/Buzzer.h"
+#include "../src/main/sensors/Button.h"
 #include <WiFi.h>
 #include <WiFiType.h>
 #include <HardwareSerial.h>
@@ -31,14 +32,7 @@ const int MOTION_SENSOR = 15;		// PIR sensor pin
 LED *led = new LED(26, 33, 32); 	// the LED which shows the status of the sensors, pins 23,22,21
 const int DHT11_DELAY = 2000;		// delay for the DHT11 sensor to take readings, must be 2 seconds
 int DHT11Millis = 0;				// time in millis since DHT11 sensor took readings
-const int PUSH_BUTTON = 14;			// Push button pin
-
-ButtonState outputButtonCurrent;	// The current state of the button
-const int BOUNCE_DELAY_MS = 1000;	// Delays the button reading by 1 second for debouncing. 
-ButtonState debouncedState = OFF;	// The debounced state of the button, defaults to off.
-ButtonState bouncedState = OFF;		// The bounced state of the button, defaults to off.
-long buttonLastChange;				// The duration since the last change in state of the button.
-
+ 
 int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must start as 5 seconds
 int statusMillis = 0;			// time in millis since last status update
 const int STATUS_DELAY_VALUES[6] = {5000, 10000, 30000, 60000, 120000, 300000}; //The values at which output can be logged to the console. 
@@ -56,6 +50,7 @@ vector<String> logging;		// Vector to store reading in volatile memory
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
 BUZZER *buzzer = NULL;
+Button *pushButton = NULL;
 TempAndHumidity tempHum;	  // the object to store the temperature and humidity values
 DHTesp dht;					  // object to store the DHT11 sensor
 TemperatureStatus tempStatus; // object to store the temperature status
@@ -132,6 +127,7 @@ void setup()
 	pir = new PIR(MOTION_SENSOR);
 	sdcard = new SDCard(SD_PIN);
 	buzzer = new BUZZER(pir, thermometer, humidity);
+	pushButton = new Button();
 
 	// WiFI
 	Serial.print("Connecting to ");
@@ -144,8 +140,6 @@ void setup()
 	}
 	Serial.print("Connected as :");
 	Serial.println(WiFi.localIP());
-
-	pinMode(PUSH_BUTTON, INPUT);
 }
 
 /**
@@ -269,25 +263,21 @@ void storeToVolatileMemory()
 	}
 
 }
-/**
- * This method will retrieve the state of the button, 
- * ensuring the button is held down for ~1 second.
- */
-ButtonState getButtonState() {
-	ButtonState now = OFF;
-	if (digitalRead(PUSH_BUTTON)) {
-		now = ON;
-	}
 
-	if (now != bouncedState) {
-		buttonLastChange = millis();
-		bouncedState = now;
-	}
+void checkButtonState() {
 
-	if (timeDiff(buttonLastChange,BOUNCE_DELAY_MS)) {
-		debouncedState = now;
-	}
-	return debouncedState;
+	ButtonState now = pushButton->getButtonState();
+		if (now != pushButton->outputButtonCurrent) {
+			pushButton->outputButtonCurrent = now;
+			switch (pushButton->outputButtonCurrent) {
+				case ON:
+					updateStatusOutputInterval();
+					delay(250);
+					break;
+				case OFF:
+					break;
+			}
+		}
 }
 
 /**
@@ -311,18 +301,6 @@ void loop()
 		sdcard->writeToSDCard(logging);
 		buzzer->whichAlertToMake(tempStatus, humStatus); // Check if noise should be made
 		writeToServer(); // write to server
-
-		ButtonState now = getButtonState();
-		if (now != outputButtonCurrent) {
-			outputButtonCurrent = now;
-			switch (outputButtonCurrent) {
-				case ON:
-					updateStatusOutputInterval();
-					delay(250);
-					break;
-				case OFF:
-					break;
-			}
-		}
+		checkButtonState();
 	}
 }
