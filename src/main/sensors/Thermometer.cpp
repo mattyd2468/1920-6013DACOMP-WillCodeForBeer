@@ -1,6 +1,5 @@
 #include "Thermometer.h"
 #include "LED.h"
-#include "Buzzer.h"
 #include <Arduino.h>
 
 Thermometer::Thermometer()
@@ -8,14 +7,13 @@ Thermometer::Thermometer()
 	// do nothing
 }
 
-Thermometer::Thermometer(int potPin, LED *led, BUZZER *buzzer)
+Thermometer::Thermometer(int potPin, LED *led)
 {
 	this->potPin = potPin;
 	pinMode(this->potPin, INPUT);
 	this->potVal = 0;
 
 	this->led = led;
-	this->buzzer = buzzer;
 }
 
 TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
@@ -40,7 +38,6 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 		{
 			Serial.println(
 				"Temperature status has changed - status is now amber!");
-				buzzer->buzz();
 		}
 		return TemperatureStatus::AMBER;
 	}
@@ -52,7 +49,6 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 		{
 			Serial.println(
 				"Temperature status has changed - status is now red!");
-				buzzer->buzz();
 		}
 		return TemperatureStatus::RED;
 	}

@@ -3,18 +3,17 @@
 
 #include <Arduino.h>
 #include "LED.h"
-#include "Buzzer.h"
 #include "../enums/TemperatureStatus.h"
 
-class Thermometer {
+class Thermometer
+{
 public:
 	double potVal = 0;
 	int potPin = 35;
-	LED* led;
-	BUZZER* buzzer;
+	LED *led;
 
 	Thermometer();
-	Thermometer(int potPin, LED *led, BUZZER* buzzer);
+	Thermometer(int potPin, LED *led);
 	TemperatureStatus calculateStatus(double potVal, LED *led);
 	String getTempStatus(TemperatureStatus currentStatus);
 };
