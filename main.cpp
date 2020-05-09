@@ -31,8 +31,6 @@ const String GROUPNAME = "WillCodeForBeer";
 const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
 int serverMillis = 0;					 // time in millis since last written to server
 
-String date; // variable to store the date
-
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
@@ -106,7 +104,7 @@ void setup()
 	Connect_WiFi->connectToHotspot();
 	Connect_WiFi->writeToServer();
 
-	sdcard = new SDCard(SD_PIN, date); // set up SD card, must be done after wifi setup otherwise date and time wont work
+	sdcard = new SDCard(SD_PIN, Connect_WiFi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
 
 /**
