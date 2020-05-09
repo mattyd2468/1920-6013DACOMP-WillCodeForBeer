@@ -28,7 +28,7 @@ class BUZZER {
     boolean timeDiff(unsigned long start, int specifiedDelay);
     void audibleAmberAlert();
     void audibleRedAlert();
-    void whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus);
+    void whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus, bool buzzerSnooze);
     String getBuzzerStatus();
     String getBuzzerSnooze();
 };
