@@ -4,17 +4,28 @@ Coursework
 Group Name: WillCodeForBeer
 Members: Matt, Chris, Becky, Sean
 
-When pulling changes from stash you will find that you will get compile errors. To fix this you need to go into the spec.d file and change the file location to your local. Also if you go into Project>Properties make sure that under C/C++ Build>Environment that any paths are correct (they will be set to Matt's laptop as he created the project so you will need to change them for your own local
-
 ### Useful Link
-http://willcodeforbeer12345.azurewebsites.net/
+http://willcodeforbeer12345.azurewebsites.net/ -- this is the link to the web server
+https://github.com/mattyd2468/1920-6013DACOMP-WillCodeForBeer -- this is the link to the project repo
+
+### Tutorial links
 https://www.instructables.com/id/How-to-use-a-Push-Button-Arduino-Tutorial/ --this is task G snooze button info
 
 ### PlatformIO Configuration!
 
-So, i got platformIO working for our project (and the set up is bliss compared to eclipse). So, you will need to add the applicable libraries again, but only 1 needs adding, to do this go to platformio home, libraries, and search for 'DHT esp' then install the dhtespx library, this should be the only set up you need. Hopefully the rest will work automatically. 
-
 You first need to install PlatformIO which will also install VS code for you, once this is done do the above and then you need to go to Terminal > Run Task.. and look for PlatformIO Build, once that has been a success you want Terminal > Run Task.. and look for PlatformIO Upload. To get your serial monitor up you want to run the PlatformIO monitor task. It should just work as the config is set up for it (or should be!)
+
+To run the unit tests you must make sure only 1 of the _test files is uncommented as it only allows for 1 setup and loop method, uncomment the file you want to run and then save the files, then go to Terminal > Run Task > PlatformIO:Test - if no logging shows then urn the monitor task as it might run in there. The regression suite file contains all unit tests for the project
+
+#### Libraries Needed
+Aunit
+Adafruit GFX Library
+DHT sensor library for ESPx
+DHT sensor library
+ESP8266_SSD1306
+HTTPClientESP32Ex
+Time
+Vector
 
 ### Versioning
 
@@ -23,25 +34,24 @@ You first need to install PlatformIO which will also install VS code for you, on
     <th>Hardware Version</th>
     <th>Software Version</th>
     <th>Schematics file name</th>
+    <th>Tasks Included</th>
   </tr>
   <tr>
     <td>1</td>
-    <td>Task A</td>
-    <td>taskA_schematics.pdf</td>
+    <td>v1.0</td>
+    <td>v1.0</td>
+    <td>A, B, D</td>
   </tr>
   <tr>
     <td>2</td>
-    <td>v1.0</td>
-    <td>example</td>
+    <td>v2.0</td>
+    <td>v2.0</td>
+    <td>C, G, H</td>
   </tr>
    <tr>
     <td>3</td>
-    <td>v2.0</td>
-    <td>example</td>
-  </tr>
-   <tr>
-    <td>4</td>
     <td>v3.0</td>
-    <td>example</td>
+    <td>v3.0</td>
+    <td>E, F, I</td>
   </tr>
 </table>
