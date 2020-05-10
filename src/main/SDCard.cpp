@@ -162,29 +162,29 @@ SDCard::SDCard(int CS_PIN, String date)
 
 	Serial.println("initialization done.");
 
-	this->logging.begin(); // start our vector
+	// this->logging.begin(); // start our vector
 
 	formatDate(date);
 
 	File myFile = SD.open(logname, FILE_WRITE);
 }
 
-/**
- * This method stores our DHT11 readings onto our vector for writing to our SD card later
- */
-void SDCard::storeDHT11Readings(String temp, String humidity)
-{
-	logging.push_back("Temperature: " + temp + "°C");
-	logging.push_back("Humidity: " + humidity + "%");
-}
+// /**
+//  * This method stores our DHT11 readings onto our vector for writing to our SD card later
+//  */
+// void SDCard::storeDHT11Readings(String temp, String humidity)
+// {
+// 	logging.push_back("Temperature: " + temp + "°C");
+// 	logging.push_back("Humidity: " + humidity + "%");
+// }
 
-/**
- * This method stores our PIR readings onto our vector for writing to our SD card later
- */
-void SDCard::storePIRReadings(String pirStatus, vector<String> logging)
-{
-	logging.push_back("Building Status: " + pirStatus);
-}
+// /**
+//  * This method stores our PIR readings onto our vector for writing to our SD card later
+//  */
+// void SDCard::storePIRReadings(String pirStatus, vector<String> logging)
+// {
+// 	logging.push_back("Building Status: " + pirStatus);
+// }
 
 boolean SDCard::timeDiff(unsigned long start, int specifiedDelay)
 {

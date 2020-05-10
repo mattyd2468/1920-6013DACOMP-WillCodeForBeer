@@ -327,6 +327,7 @@ void loop()
 		tempAndHumSensor();
 		pir->motionSensor(sdcard, logging); //Call taskD code
 		statusUpdate();			   // report status update
+		storeToVolatileMemory()
 		sdcard->writeToSDCard(logging);
 		readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus, snoozeBool); // Check if noise should be made

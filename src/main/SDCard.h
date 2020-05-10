@@ -13,7 +13,7 @@ public:
     int CS_PIN;
     const int DELAY = 120000; // this is 2 minutes
     int MILLIS = 0; // seconds since last write
-    vector<String> logging; // where our readings will be stored
+    // vector<String> logging; // where our readings will be stored
     String date;
 
     SDCard();
