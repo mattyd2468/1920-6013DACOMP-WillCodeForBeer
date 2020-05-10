@@ -31,8 +31,6 @@ const String GROUPNAME = "WillCodeForBeer";
 const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
 int serverMillis = 0;					 // time in millis since last written to server
 
-String date; // variable to store the date
-
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
@@ -63,7 +61,7 @@ DHTesp dht;					  // object to store the DHT11 sensor
 TempAndHumidity tempHum;	  // the object to store the temperature and humidity values
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus;	  // object to store the humidity status
-
+Connect_WiFi *connect_wifi = NULL;
 PIRStatus motionSensorStatus = PIRStatus::VACANT; // object to store the PIR status
 PIR *pir = NULL;
 
@@ -76,65 +74,6 @@ const int SD_PIN = 5; // must be pin 5
 boolean timeDiff(unsigned long start, int specifiedDelay)
 {
 	return (millis() - start >= specifiedDelay);
-}
-
-/**
- * Method to post to server
- */
-void writeToServer()
-{
-	if (timeDiff(serverMillis, WRITE_TO_SERVER_DELAY))
-	{
-		serverMillis = millis();
-		// url parameters
-		String url = HOST;
-		url.concat("?groupname=");
-		url.concat(GROUPNAME);
-		url.concat("&t=");
-		url.concat(tempHum.temperature);
-		url.concat("&h=");
-		url.concat(tempHum.humidity);
-		HTTPClient hClient;
-		hClient.begin(url);
-		const char *headers[] = {"Date"};
-		hClient.collectHeaders(headers, 1);
-		hClient.setTimeout(TIMEOUT);
-		int retCode = hClient.GET();
-		if (retCode > 0)
-		{
-			//a real HTTP code
-			Serial.print("HTTP ");
-			Serial.println(retCode);
-			if (retCode == HTTP_CODE_OK)
-			{
-				Serial.println("------");
-				Serial.println("Date = " + hClient.header("Date"));
-				Serial.println("-------");
-
-				date = hClient.header("Date");
-			}
-		}
-		else
-		{
-			Serial.println("Error... ");
-			Serial.println(HTTPClient::errorToString(retCode));
-		}
-	}
-}
-
-void connectToHotspot()
-{
-	//WiFI
-	Serial.print("Connecting to ");
-	Serial.println(SSID);
-	WiFi.begin(SSID, PASS);
-	while (WiFi.status() != WL_CONNECTED)
-	{
-		delay(250);
-		Serial.print(".");
-	}
-	Serial.print("Connected as :");
-	Serial.println(WiFi.localIP());
 }
 
 /**
@@ -162,10 +101,10 @@ void setup()
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
-	connectToHotspot();
-	writeToServer();
+	Connect_WiFi->connectToHotspot();
+	Connect_WiFi->writeToServer();
 
-	sdcard = new SDCard(SD_PIN, date); // set up SD card, must be done after wifi setup otherwise date and time wont work
+	sdcard = new SDCard(SD_PIN, Connect_WiFi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
 
 /**
@@ -306,7 +245,7 @@ void loop()
 		sdcard->writeToSDCard();
 		readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus, snoozeBool); // Check if noise should be made
-		writeToServer();													   // write to server
+		Connect_WiFi->writeToServer();													   // write to server
 
 		//PIR Sensor Status
 		if(pir->getPIRStatus()=="OCCUPIED"){
