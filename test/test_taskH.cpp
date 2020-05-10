@@ -7,14 +7,11 @@
 // #include "../src/main/sensors/Buzzer.cpp"
 // #include "../src/main/sensors/LED.cpp"
 
-// LED *led;
-// Thermometer *temperature;
-// Humidity *humidity;
-// PIR *pir;
-// BUZZER* buzzer;
+
 // SDCard *sdcard;
 // DHTesp dht; // object to store the DHT11 sensor
 // TempAndHumidity tempHum;
+// vector<String> logging;
 
 // void setup()
 // {
@@ -23,11 +20,6 @@
 //     delay(2000);
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
-//     led = new LED(26, 33, 32);
-//     pir = new PIR(15);
-//     buzzer = new BUZZER(pir);
-//     temperature = new Thermometer(4, led, buzzer);
-//     humidity = new Humidity(4, led, buzzer);
 //     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
 //     String date = "Fri, 10 Apr 2020 12:48:40 GMT";
 //     sdcard = new SDCard(5, date);
@@ -50,9 +42,14 @@
 // void test_Writes_To_Vector()
 // {
 //     tempHum = dht.getTempAndHumidity();
-//     sdcard->storeDHT11Readings((String)tempHum.temperature, (String)tempHum.humidity);
+//     // Stores latest recorded DHT11 readings into a vector in volatile memory.
 
-//     bool isEmpty = sdcard->logging.empty();
+//     logging.push_back("Temperature: " + (String)tempHum.temperature + "°C");
+//     logging.push_back("Humidity: " + (String)tempHum.humidity + "%");
+//     // Stores latest recorded PIR readings into a vector in volatile memory.
+//     sdcard->writeToSDCard(logging);
+
+//     bool isEmpty = logging.empty();
 
 //     TEST_ASSERT_EQUAL(false, isEmpty); // tests that the vector now has elements in it
 // }

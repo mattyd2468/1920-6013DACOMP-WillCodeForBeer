@@ -6,6 +6,7 @@
 #include "../main/sensors/LED.h"
 #include "../main/sensors/PIR.h"
 #include "../src/main/sensors/Buzzer.h"
+#include "../src/main/sensors/Button.h"
 #include <WiFi.h>
 #include <WiFiType.h>
 #include <HardwareSerial.h>
@@ -15,6 +16,7 @@
 #include <Vector.h>
 #include <Adafruit_GFX.h>
 #include <SSD1306.h>
+#include "../src/main/Connect_WiFi.h"
 
 //OLED Screen
 SSD1306 display(0x3c, 21, 22);			   //OLED display
@@ -22,31 +24,27 @@ const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
 unsigned long oledChangeTime = 0;		   //Time since OLED screen was last updated
 bool isOccupied = false;
 
-//WiFi
-const char *SSID = "iPhone";
-const char *PASS = "password";
-const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
-const int TIMEOUT = 10000;
-const String GROUPNAME = "WillCodeForBeer";
-const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
-int serverMillis = 0;					 // time in millis since last written to server
-
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
 #define DHTTYPE DHT11
-const int MOTION_SENSOR = 15;	// PIR sensor pin
-LED *led = new LED(26, 33, 32); // the LED which shows the status of the sensors, pins 23,22,21
-const int DHT11_DELAY = 2000;	// delay for the DHT11 sensor to take readings, must be 2 seconds
-int DHT11Millis = 0;			// time in millis since DHT11 sensor took readings
+const int MOTION_SENSOR = 15;		// PIR sensor pin
+LED *led = new LED(26, 33, 32); 	// the LED which shows the status of the sensors, pins 23,22,21
+const int DHT11_DELAY = 2000;		// delay for the DHT11 sensor to take readings, must be 2 seconds
+int DHT11Millis = 0;				// time in millis since DHT11 sensor took readings
 const int buttonPin = 13;
-const int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must be every 5 seconds
-int statusMillis = 0;				  // time in millis since last status update
+int STATUS_UPDATE_DELAY = 5000; // delay for the status update, must start as 5 seconds
+int statusMillis = 0;			// time in millis since last status update
+const int STATUS_DELAY_VALUES[6] = {5000, 10000, 30000, 60000, 120000, 300000}; //The values at which output can be logged to the console. 
+
+const int MEMORY_UPDATE_DELAY = 5000; // delay for the volatile memory update, must be every 5 seconds
+int memoryMillis = 0;				  // time in millis since last memory update
 
 //Variable initialisation
-bool firstLoop = true; //Variable to store if it is the first loop or not
-double potVal = 0;	   // Variable to store temperature value
-double humVal = 0;	   // Variable to store the humidity value
+bool firstLoop = true; 		//Variable to store if it is the first loop or not
+double potVal = 0;	   		// Variable to store temperature value
+double humVal = 0;	   		// Variable to store the humidity value
 int buttonState = 0;   //Variable for button, is not pressed when it is 0
+vector<String> logging;		// Vector to store reading in volatile memory
 
 //debouncing variables
 long lastDebounceTime = 0; // the last time the output pin was toggled
@@ -57,8 +55,9 @@ bool snoozeBool = false;
 Thermometer *thermometer = NULL;
 Humidity *humidity = NULL;
 BUZZER *buzzer = NULL;
-DHTesp dht;					  // object to store the DHT11 sensor
+Button *pushButton = NULL;
 TempAndHumidity tempHum;	  // the object to store the temperature and humidity values
+DHTesp dht;					  // object to store the DHT11 sensor
 TemperatureStatus tempStatus; // object to store the temperature status
 HumidityStatus humStatus;	  // object to store the humidity status
 Connect_WiFi *connect_wifi = NULL;
@@ -88,6 +87,7 @@ void setup()
 	buzzer = new BUZZER(pir);
 	thermometer = new Thermometer(DHTPIN, led);
 	humidity = new Humidity(DHTPIN, led);
+	pushButton = new Button();
 
 	//OLED Screen Initialization & Setup
 	display.init();
@@ -101,10 +101,11 @@ void setup()
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
-	Connect_WiFi->connectToHotspot();
-	Connect_WiFi->writeToServer();
+	connect_wifi = new Connect_WiFi();
+	connect_wifi->connectToHotspot();
+	connect_wifi->writeToServer(tempHum);
 
-	sdcard = new SDCard(SD_PIN, Connect_WiFi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
+	sdcard = new SDCard(SD_PIN, connect_wifi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
 
 /**
@@ -146,7 +147,7 @@ void tempAndHumSensor()
 		humStatus = humidity->calculateStatus(tempHum.humidity, led);
 		led->setLEDColour(tempStatus, humStatus);
 
-		sdcard->storeDHT11Readings((String)tempHum.temperature, (String)tempHum.humidity);
+
 	}
 }
 
@@ -226,6 +227,90 @@ void updateScreen(int temp, int hum, bool isOccupied){
 }
 
 /**
+ * Formats the delay set for the status, 
+ * so that it is output to the console in the correct format.
+ */
+String formatUpdateDelay(int delay)
+{
+
+	String response;
+
+	int seconds = delay/1000;
+
+	if(seconds <= 60) {
+		response = (String)seconds + "s";
+	} else {
+		int minutes = seconds/60;
+		response = (String)minutes + " mins";
+	}
+
+	return response;
+
+}
+
+/**
+ *	This method will cycle the list of output intervals, 
+ *	and increment the value used to be the next in the list.
+ */
+void updateStatusOutputInterval() 
+{
+	if(STATUS_UPDATE_DELAY == 300000) {
+		STATUS_UPDATE_DELAY = STATUS_DELAY_VALUES[0];
+	} else {
+		for(int i = 0; i < sizeof(STATUS_DELAY_VALUES); i++) {
+			if (STATUS_DELAY_VALUES[i] == STATUS_UPDATE_DELAY) {
+				STATUS_UPDATE_DELAY = STATUS_DELAY_VALUES[i+1];
+				break;
+			}
+		}
+	}
+	Serial.print("Output interval is now " );
+	Serial.println(formatUpdateDelay(STATUS_UPDATE_DELAY));
+}
+
+/**
+ *	This method will check when results were last written to memory, and if >5 seconds ago,	
+ *	it will write the most recently recorded values.
+ */
+void storeToVolatileMemory()
+{
+
+	if (timeDiff(memoryMillis, MEMORY_UPDATE_DELAY)) {
+
+		memoryMillis = millis();
+
+		// Stores latest recorded DHT11 readings into a vector in volatile memory.
+		logging.push_back("Temperature: " + (String)tempHum.temperature + "°C");
+		logging.push_back("Humidity: " + (String)tempHum.humidity + "%");
+
+		// Stores latest recorded PIR readings into a vector in volatile memory.
+		logging.push_back("Building Status: " + pir->getPIRStatus());
+
+	}
+
+}
+
+/**
+ * This method checks the state of the button, and if it is high, 
+ * will trigger the output delay to change.
+ */
+void checkButtonState() {
+
+	ButtonState now = pushButton->getButtonState();
+		if (now != pushButton->outputButtonCurrent) {
+			pushButton->outputButtonCurrent = now;
+			switch (pushButton->outputButtonCurrent) {
+				case ON:
+					updateStatusOutputInterval();
+					delay(250);
+					break;
+				case OFF:
+					break;
+			}
+		}
+}
+
+/**
  * This method is our main loop logic
  */
 void loop()
@@ -240,12 +325,14 @@ void loop()
 	{
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
-		pir->motionSensor(sdcard); //Call taskD code
+		pir->motionSensor(sdcard, logging); //Call taskD code
 		statusUpdate();			   // report status update
-		sdcard->writeToSDCard();
+		storeToVolatileMemory();
+		sdcard->writeToSDCard(logging);
 		readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus, snoozeBool); // Check if noise should be made
-		Connect_WiFi->writeToServer();													   // write to server
+		connect_wifi->writeToServer(tempHum);													   // write to server
+		checkButtonState();
 
 		//PIR Sensor Status
 		if(pir->getPIRStatus()=="OCCUPIED"){

@@ -15,6 +15,7 @@ String localDate;
 String wifiTime;
 String logname; // the name of the file being written to
 
+
 /*
  * CS	PIN 5
  * SCK	PIN 18
@@ -161,28 +162,11 @@ SDCard::SDCard(int CS_PIN, String date)
 
 	Serial.println("initialization done.");
 
-	this->logging.begin(); // start our vector
+	// this->logging.begin(); // start our vector
 
 	formatDate(date);
 
 	File myFile = SD.open(logname, FILE_WRITE);
-}
-
-/**
- * This method stores our DHT11 readings onto our vector for writing to our SD card later
- */
-void SDCard::storeDHT11Readings(String temp, String humidity)
-{
-	logging.push_back("Temperature: " + temp + "°C");
-	logging.push_back("Humidity: " + humidity + "%");
-}
-
-/**
- * This method stores our PIR readings onto our vector for writing to our SD card later
- */
-void SDCard::storePIRReadings(String pirStatus)
-{
-	logging.push_back("Building Status: " + pirStatus);
 }
 
 boolean SDCard::timeDiff(unsigned long start, int specifiedDelay)
@@ -194,7 +178,7 @@ boolean SDCard::timeDiff(unsigned long start, int specifiedDelay)
  * This method will write everything stored in our vector (logging) to the SD card and once done will 
  * clear our logging from local volatile memory (our vetor)
  */
-void SDCard::writeToSDCard()
+void SDCard::writeToSDCard(vector<String> logging)
 {
 
 	if (timeDiff(this->MILLIS, this->DELAY))
@@ -209,7 +193,7 @@ void SDCard::writeToSDCard()
 		if (myFile)
 		{
 			// loop through our vector and write each line to the file
-			for (const auto &e : this->logging)
+			for (const auto &e : logging)
 			{
 				myFile.print(localDate + " " + wifiTime + "		");
 				myFile.println(e);
@@ -217,7 +201,7 @@ void SDCard::writeToSDCard()
 
 			myFile.close(); // closes the file once writing is complete
 			Serial.println("Write complete....");
-			this->logging.clear(); // empty vector now as we have writting it all to our file
+			logging.clear(); // empty vector now as we have writting it all to our file
 		}
 		else
 		{

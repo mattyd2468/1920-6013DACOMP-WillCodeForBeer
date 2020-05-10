@@ -7,6 +7,9 @@
 #include "sensors/Thermometer.h"
 #include "sensors/Humidity.h"
 #include <DHTesp.h>
+#include <WString.h>
+
+using namespace std;
 
 Connect_WiFi::Connect_WiFi()
 {
@@ -35,15 +38,15 @@ void Connect_WiFi::connectToHotspot()
 /**
  * This will make a noise if last noise was less than 30 seconds ago
  */
-void Connect_WiFi::writeToServer()
+void Connect_WiFi::writeToServer(TempAndHumidity tempHum)
 {
-	if (timeDiff(serverMillis, WRITE_TO_SERVER_DELAY))
+	if (timeDiff(serverMillis, this->WRITE_TO_SERVER_DELAY))
 	{
 		serverMillis = millis();
 		// url parameters
-		String url = HOST;
+		String url = this->HOST;
 		url.concat("?groupname=");
-		url.concat(GROUPNAME);
+		url.concat(this->GROUPNAME);
 		url.concat("&t=");
 		url.concat(tempHum.temperature);
 		url.concat("&h=");

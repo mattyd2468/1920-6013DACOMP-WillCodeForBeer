@@ -23,11 +23,6 @@
 //     delay(2000);
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
-//     pir = new PIR(15);
-//     buzzer = new BUZZER(pir);
-//     led = new LED(26, 33, 32);
-//     temp = new Thermometer(4, led, buzzer);
-//     hum = new Humidity(4, led, buzzer);
 // }
 
 // /**

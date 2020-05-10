@@ -5,6 +5,7 @@
 
 // PIR *pir;
 // SDCard* sdcard;
+// vector<String> logging;
 
 // void setup()
 // {
@@ -34,7 +35,7 @@
 // void test_PIR_vacant()
 // {
 //     pir->lowTime = 5000;
-//     pir->motionSensor(sdcard);
+//     pir->motionSensor(sdcard, logging);
 //     TEST_ASSERT_EQUAL(PIRStatus::VACANT, pir->motionSensorStatus);
 // }
 
@@ -42,7 +43,7 @@
 // {
 //     pir->isDelayActive = true;
 //     digitalWrite(15, HIGH);
-//     pir->motionSensor(sdcard);
+//     pir->motionSensor(sdcard, logging);
 //     TEST_ASSERT_EQUAL(PIRStatus::OCCUPIED, pir->motionSensorStatus);
 // }
 
