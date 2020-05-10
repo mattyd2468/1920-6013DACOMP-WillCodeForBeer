@@ -11,9 +11,8 @@
 
 using namespace std;
 
-Connect_WiFi::Connect_WiFi(TempAndHumidity tempHum)
+Connect_WiFi::Connect_WiFi()
 {
-	this->tempHum = tempHum;
 }
 
 boolean Connect_WiFi::timeDiff(unsigned long start, int specifiedDelay)
@@ -39,22 +38,19 @@ void Connect_WiFi::connectToHotspot()
 /**
  * This will make a noise if last noise was less than 30 seconds ago
  */
-void Connect_WiFi::writeToServer()
+void Connect_WiFi::writeToServer(TempAndHumidity tempHum)
 {
 	if (timeDiff(serverMillis, this->WRITE_TO_SERVER_DELAY))
 	{
 		serverMillis = millis();
-
 		// url parameters
 		String url = this->HOST;
 		url.concat("?groupname=");
 		url.concat(this->GROUPNAME);
 		url.concat("&t=");
 		url.concat(tempHum.temperature);
-
 		url.concat("&h=");
 		url.concat(tempHum.humidity);
-
 		HTTPClient hClient;
 		hClient.begin(url);
 		const char *headers[] = {"Date"};

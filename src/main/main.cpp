@@ -101,9 +101,9 @@ void setup()
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
-	connect_wifi = new Connect_WiFi(tempHum);
+	connect_wifi = new Connect_WiFi();
 	connect_wifi->connectToHotspot();
-	connect_wifi->writeToServer();
+	connect_wifi->writeToServer(tempHum);
 
 	sdcard = new SDCard(SD_PIN, connect_wifi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
@@ -331,7 +331,7 @@ void loop()
 		sdcard->writeToSDCard(logging);
 		readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus, snoozeBool); // Check if noise should be made
-		connect_wifi->writeToServer();													   // write to server
+		connect_wifi->writeToServer(tempHum);													   // write to server
 		checkButtonState();
 
 		//PIR Sensor Status

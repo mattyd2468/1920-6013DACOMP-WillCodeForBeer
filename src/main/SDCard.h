@@ -18,8 +18,6 @@ public:
 
     SDCard();
     SDCard(int CS_PIN, String date);
-    void storeDHT11Readings(String temp, String humidity);
-    void storePIRReadings(String pirStatus, vector<String> logging);
     void writeToSDCard(vector<String> logging);
 
 private:

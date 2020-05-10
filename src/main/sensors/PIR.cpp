@@ -44,7 +44,6 @@ void PIR::motionSensor(SDCard* sdcard, vector<String> logging)
 			Serial.println("OCCUPIED at ");
 			Serial.print(millis() / 1000);
 			Serial.println(" sec");
-			sdcard->storePIRReadings("OCCUPIED", logging);
 			delay(50);
 		}
 		this->getLowTime = true;
@@ -68,7 +67,6 @@ void PIR::motionSensor(SDCard* sdcard, vector<String> logging)
 			Serial.println("VACANT at ");
 			Serial.print((millis()) / 1000);
 			Serial.println(" sec");
-			sdcard->storePIRReadings("VACANT", logging);
 			delay(50);
 		}
 	}
