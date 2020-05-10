@@ -4,11 +4,12 @@ Coursework
 Group Name: WillCodeForBeer
 Members: Matt, Chris, Becky, Sean
 
-### Useful Link
+### Useful Links
 http://willcodeforbeer12345.azurewebsites.net/ -- this is the link to the web server
+
 https://github.com/mattyd2468/1920-6013DACOMP-WillCodeForBeer -- this is the link to the project repo
 
-### Tutorial links
+#### Tutorial links
 https://www.instructables.com/id/How-to-use-a-Push-Button-Arduino-Tutorial/ --this is task G snooze button info
 
 ### PlatformIO Configuration!
@@ -19,12 +20,19 @@ To run the unit tests you must make sure only 1 of the _test files is uncommente
 
 #### Libraries Needed
 Aunit
+
 Adafruit GFX Library
+
 DHT sensor library for ESPx
+
 DHT sensor library
+
 ESP8266_SSD1306
+
 HTTPClientESP32Ex
+
 Time
+
 Vector
 
 ### Versioning
