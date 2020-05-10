@@ -26,8 +26,8 @@
 //     led = new LED(26, 33, 32);
 //     pir = new PIR(15);
 //     buzzer = new BUZZER(pir);
-//     temperature = new Thermometer(4, led, buzzer);
-//     humidity = new Humidity(4, led, buzzer);
+//     temperature = new Thermometer(4, led);
+//     humidity = new Humidity(4, led);
 //     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
 //     String date = "Sun, 12 Apr 2020 23:21:40 GMT";
 //     sdcard = new SDCard(5, date);

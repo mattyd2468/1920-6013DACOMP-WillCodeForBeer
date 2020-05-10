@@ -15,6 +15,7 @@ SDCard *sdcard;
 BUZZER *buzzer;
 DHTesp dht; // object to store the DHT11 sensor
 TempAndHumidity tempHum;
+vector<String> logging;		// Vector to store reading in volatile memory
 
 void setup()
 {
@@ -26,8 +27,8 @@ void setup()
     led = new LED(26, 33, 32);
     pir = new PIR(15);
     buzzer = new BUZZER(pir);
-    temperature = new Thermometer(4, led, buzzer);
-    humidity = new Humidity(4, led, buzzer);
+    temperature = new Thermometer(4, led);
+    humidity = new Humidity(4, led);
     dht.setup(4, DHTesp::DHT11); // set up the DHT11 sensor
     String date = "Fri, 10 Apr 2020 12:48:40 GMT";
     sdcard = new SDCard(5, date);
@@ -209,7 +210,7 @@ void test_PIR_status()
 void test_PIR_vacant()
 {
     pir->lowTime = 5000;
-    pir->motionSensor(sdcard);
+    pir->motionSensor(sdcard, logging);
     TEST_ASSERT_EQUAL(PIRStatus::VACANT, pir->motionSensorStatus);
 }
 
@@ -282,21 +283,21 @@ void test_Temp_Valid1()
 void test_buzzer_red()
 {
     pir->motionSensorStatus = PIRStatus::OCCUPIED;
-    buzzer->whichAlertToMake(TemperatureStatus::RED, HumidityStatus::GREEN);
+    buzzer->whichAlertToMake(TemperatureStatus::RED, HumidityStatus::GREEN, false);
     TEST_ASSERT_EQUAL(BuzzerStatus::RED, buzzer->buzzerStatus);
 }
 
 void test_buzzer_amber()
 {
     pir->motionSensorStatus = PIRStatus::OCCUPIED;
-    buzzer->whichAlertToMake(TemperatureStatus::AMBER, HumidityStatus::GREEN);
+    buzzer->whichAlertToMake(TemperatureStatus::AMBER, HumidityStatus::GREEN, false);
     TEST_ASSERT_EQUAL(BuzzerStatus::AMBER, buzzer->buzzerStatus);
 }
 
 void test_buzzer_green()
 {
     pir->motionSensorStatus = PIRStatus::OCCUPIED;
-    buzzer->whichAlertToMake(TemperatureStatus::GREEN, HumidityStatus::GREEN);
+    buzzer->whichAlertToMake(TemperatureStatus::GREEN, HumidityStatus::GREEN, false);
     TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
 }
 
@@ -304,21 +305,21 @@ void test_buzzer_not_Active_dht11_amber()
 {
 
     pir->motionSensorStatus = PIRStatus::VACANT;
-    buzzer->whichAlertToMake(TemperatureStatus::AMBER, HumidityStatus::GREEN);
+    buzzer->whichAlertToMake(TemperatureStatus::AMBER, HumidityStatus::GREEN, false);
     TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
 }
 
 void test_buzzer_not_Active_dht11_green()
 {
     pir->motionSensorStatus = PIRStatus::VACANT;
-    buzzer->whichAlertToMake(TemperatureStatus::GREEN, HumidityStatus::GREEN);
+    buzzer->whichAlertToMake(TemperatureStatus::GREEN, HumidityStatus::GREEN, false);
     TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
 }
 
 void test_buzzer_not_Active_dht11_red()
 {
     pir->motionSensorStatus = PIRStatus::VACANT;
-    buzzer->whichAlertToMake(TemperatureStatus::RED, HumidityStatus::GREEN);
+    buzzer->whichAlertToMake(TemperatureStatus::RED, HumidityStatus::GREEN, false);
     TEST_ASSERT_EQUAL(BuzzerStatus::NONE, buzzer->buzzerStatus);
 }
 
@@ -329,9 +330,15 @@ void test_buzzer_not_Active_dht11_red()
 void test_Writes_To_Vector()
 {
     tempHum = dht.getTempAndHumidity();
-    sdcard->storeDHT11Readings((String)tempHum.temperature, (String)tempHum.humidity);
+    // Stores latest recorded DHT11 readings into a vector in volatile memory.
 
-    bool isEmpty = sdcard->logging.empty();
+    logging.push_back("Temperature: " + (String)tempHum.temperature + "°C");
+    logging.push_back("Humidity: " + (String)tempHum.humidity + "%");
+    // Stores latest recorded PIR readings into a vector in volatile memory.
+    logging.push_back("Building Status: " + pir->getPIRStatus());
+    sdcard->writeToSDCard(logging);
+
+    bool isEmpty = logging.empty();
 
     TEST_ASSERT_EQUAL(false, isEmpty); // tests that the vector now has elements in it
 }
@@ -490,7 +497,6 @@ void runSDCardScript()
     RUN_TEST(test_SD_Card_File_Created_Correctly);
     delay(1000);
 }
-
 
 void loop()
 {

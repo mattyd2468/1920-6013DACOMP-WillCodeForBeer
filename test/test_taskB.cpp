@@ -26,10 +26,8 @@
 
 //     UNITY_BEGIN(); // IMPORTANT LINE!
 //     led = new LED(27, 33, 32);
-//     pir = new PIR(15);
-//     buzzer = new BUZZER(pir);
-//     temperature = new Thermometer(4, led, buzzer);
-//     humidity = new Humidity(4, led, buzzer);
+//     temperature = new Thermometer(4, led);
+//     humidity = new Humidity(4, led);
 
 //     pinMode(4, INPUT);
 //     pinMode(26, OUTPUT);
