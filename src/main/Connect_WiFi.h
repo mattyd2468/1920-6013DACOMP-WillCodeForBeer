@@ -10,7 +10,7 @@
 class Connect_WiFi {
     public:
     //WiFi
-const char *SSID = "Matt";
+const char *SSID = "iPhone";
 const char *PASS = "password";
 const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
 const int TIMEOUT = 10000;
@@ -20,7 +20,7 @@ const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be
 int serverMillis = 0;					 // time in millis since last written to server   
 String date; 
 
-    Connect_WiFi();
+    Connect_WiFi(TempAndHumidity tempHum);
 
     void connectToHotspot(); 
     void writeToServer();

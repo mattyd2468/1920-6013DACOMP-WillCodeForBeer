@@ -7,9 +7,13 @@
 #include "sensors/Thermometer.h"
 #include "sensors/Humidity.h"
 #include <DHTesp.h>
+#include <WString.h>
 
-Connect_WiFi::Connect_WiFi()
+using namespace std;
+
+Connect_WiFi::Connect_WiFi(TempAndHumidity tempHum)
 {
+	this->tempHum = tempHum;
 }
 
 boolean Connect_WiFi::timeDiff(unsigned long start, int specifiedDelay)
@@ -37,17 +41,20 @@ void Connect_WiFi::connectToHotspot()
  */
 void Connect_WiFi::writeToServer()
 {
-	if (timeDiff(serverMillis, WRITE_TO_SERVER_DELAY))
+	if (timeDiff(serverMillis, this->WRITE_TO_SERVER_DELAY))
 	{
 		serverMillis = millis();
+
 		// url parameters
-		String url = HOST;
+		String url = this->HOST;
 		url.concat("?groupname=");
-		url.concat(GROUPNAME);
+		url.concat(this->GROUPNAME);
 		url.concat("&t=");
 		url.concat(tempHum.temperature);
+
 		url.concat("&h=");
 		url.concat(tempHum.humidity);
+
 		HTTPClient hClient;
 		hClient.begin(url);
 		const char *headers[] = {"Date"};

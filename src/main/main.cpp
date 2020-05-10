@@ -16,21 +16,13 @@
 #include <Vector.h>
 #include <Adafruit_GFX.h>
 #include <SSD1306.h>
+#include "../src/main/Connect_WiFi.h"
 
 //OLED Screen
 SSD1306 display(0x3c, 21, 22);			   //OLED display
 const unsigned long oledRefreshTime = 250; //250 ms timer to update OLED screen
 unsigned long oledChangeTime = 0;		   //Time since OLED screen was last updated
 bool isOccupied = false;
-
-//WiFi
-const char *SSID = "iPhone";
-const char *PASS = "password";
-const char *HOST = "http://willcodeforbeer12345.azurewebsites.net/";
-const int TIMEOUT = 10000;
-const String GROUPNAME = "WillCodeForBeer";
-const int WRITE_TO_SERVER_DELAY = 30000; // delay for the status update, must be every 30 seconds
-int serverMillis = 0;					 // time in millis since last written to server
 
 //Pin set up
 #define DHTPIN 4 // the pin value for the DHT11 sensor
@@ -109,10 +101,11 @@ void setup()
 
 	dht.setup(DHTPIN, DHTesp::DHT11); // set up the DHT11 sensor
 
-	Connect_WiFi->connectToHotspot();
-	Connect_WiFi->writeToServer();
+	connect_wifi = new Connect_WiFi(tempHum);
+	connect_wifi->connectToHotspot();
+	connect_wifi->writeToServer();
 
-	sdcard = new SDCard(SD_PIN, Connect_WiFi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
+	sdcard = new SDCard(SD_PIN, connect_wifi->date); // set up SD card, must be done after wifi setup otherwise date and time wont work
 }
 
 /**
@@ -332,12 +325,12 @@ void loop()
 	{
 		// get the temperature and humidity readings from the DHT11 sensor
 		tempAndHumSensor();
-		pir->motionSensor(sdcard); //Call taskD code
+		pir->motionSensor(sdcard, logging); //Call taskD code
 		statusUpdate();			   // report status update
-		sdcard->writeToSDCard();
+		sdcard->writeToSDCard(logging);
 		readButton();
 		buzzer->whichAlertToMake(tempStatus, humStatus, snoozeBool); // Check if noise should be made
-		Connect_WiFi->writeToServer();													   // write to server
+		connect_wifi->writeToServer();													   // write to server
 		checkButtonState();
 
 		//PIR Sensor Status
