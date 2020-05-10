@@ -1,6 +1,8 @@
 #include "Button.h"
 #include <../src/main/enums/ButtonState.h>
 
+Button::Button(){};
+
 Button::Button(int PUSH_BUTTON_PIN, int BOUNCE_DELAY_MS, ButtonState bouncedState, ButtonState debouncedState, long buttonLastChange) {
     this->PUSH_BUTTON_PIN = PUSH_BUTTON_PIN;
     this->BOUNCE_DELAY_MS = BOUNCE_DELAY_MS;

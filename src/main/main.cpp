@@ -14,7 +14,6 @@
 #include <WString.h>
 #include "SDCard.h"
 #include <Vector.h>
-#include <../src/main/enums/ButtonState.h>
 
 //WiFi
 const char *SSID = "Matt";
@@ -129,7 +128,7 @@ void setup()
 	buzzer = new BUZZER(pir, thermometer, humidity);
 	pushButton = new Button();
 
-	// WiFI
+	//WiFI
 	Serial.print("Connecting to ");
 	Serial.println(SSID);
 	WiFi.begin(SSID, PASS);
@@ -203,6 +202,10 @@ void statusUpdate()
 	}
 }
 
+/**
+ * Formats the delay set for the status, 
+ * so that it is output to the console in the correct format.
+ */
 String formatUpdateDelay(int delay)
 {
 
@@ -210,7 +213,7 @@ String formatUpdateDelay(int delay)
 
 	int seconds = delay/1000;
 
-	if(seconds < 60) {
+	if(seconds <= 60) {
 		response = (String)seconds + "s";
 	} else {
 		int minutes = seconds/60;
@@ -225,7 +228,6 @@ String formatUpdateDelay(int delay)
  *	This method will cycle the list of output intervals, 
  *	and increment the value used to be the next in the list.
  */
-
 void updateStatusOutputInterval() 
 {
 	if(STATUS_UPDATE_DELAY == 300000) {
@@ -264,6 +266,10 @@ void storeToVolatileMemory()
 
 }
 
+/**
+ * This method checks the state of the button, and if it is high, 
+ * will trigger the output delay to change.
+ */
 void checkButtonState() {
 
 	ButtonState now = pushButton->getButtonState();
