@@ -5,11 +5,12 @@
 #include "LED.h"
 #include "../enums/TemperatureStatus.h"
 
-class Thermometer {
+class Thermometer
+{
 public:
 	double potVal = 0;
 	int potPin = 35;
-	LED* led;
+	LED *led;
 
 	Thermometer();
 	Thermometer(int potPin, LED *led);

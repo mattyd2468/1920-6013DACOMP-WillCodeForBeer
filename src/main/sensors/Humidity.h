@@ -5,12 +5,12 @@
 #include "LED.h"
 #include "../enums/HumidityStatus.h"
 
-class Humidity {
+class Humidity
+{
 public:
-
 	double potVal = 0;
 	int potPin = 4;
-	LED* led;
+	LED *led;
 
 	Humidity();
 	Humidity(int potPin, LED *led);

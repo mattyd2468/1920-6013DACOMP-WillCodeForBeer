@@ -7,13 +7,14 @@ BUZZER::BUZZER() {
 	ledcAttachPin(BUZZER_PIN, channel);
 }
 
-BUZZER::BUZZER(PIR *pir, Thermometer *thermometer, Humidity *humidity) {
+BUZZER::BUZZER(PIR *pir)
+{
 	//taskG setup
 	ledcSetup(channel, freq, resolution);
 	ledcAttachPin(BUZZER_PIN, channel);
-    this->pir = pir;
-    this->thermometer = thermometer;
-    this->humidity = humidity;
+	this->pir = pir;
+	this->buzzerStatus = BuzzerStatus::NONE;
+	this->buzzerSnooze = false;
 }
 
 boolean BUZZER::timeDiff(unsigned long start, int specifiedDelay){
@@ -22,8 +23,9 @@ boolean BUZZER::timeDiff(unsigned long start, int specifiedDelay){
 
 void BUZZER::buzz() {
 	ledcWrite(channel, dutyCycle);
-	delay(300);
+	delay(1000);
 	ledcWrite(channel, 0);
+	this->buzzerSnooze = false;
 }
 
 /**
@@ -33,6 +35,7 @@ void BUZZER::audibleAmberAlert() {
 	if (timeDiff(this->alertMillis, AMBER_ALERT_SOUND_DELAY)) {
 		this->alertMillis = millis();
 		Serial.println("Amber buzz");
+		this->buzzerStatus = BuzzerStatus::AMBER;
 		buzz();
 	}
 }
@@ -44,6 +47,7 @@ void BUZZER::audibleRedAlert() {
 	if (timeDiff(this->alertMillis, RED_ALERT_SOUND_DELAY)) {
 		alertMillis = millis();
 		Serial.println("Red buzz");
+		this->buzzerStatus = BuzzerStatus::RED;
 		buzz();
 	}
 }
@@ -51,15 +55,46 @@ void BUZZER::audibleRedAlert() {
 /**
  * Check if it should call method to make noise
  */
-void BUZZER::whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus) {
-	if (pir->getPIRStatus() == "OCCUPIED") {
-		if (thermometer->getTempStatus(tempStatus) == "RED"
-				|| (humidity->getHumStatus(humStatus)) == "RED") {
+void BUZZER::whichAlertToMake(TemperatureStatus tempStatus, HumidityStatus humStatus, bool buzzerSnooze)
+{
+	if (pir->getPIRStatus() == "OCCUPIED" && buzzerSnooze == false) {
+		if (tempStatus == TemperatureStatus::RED || humStatus == HumidityStatus::RED) {
+			this->buzzerStatus = BuzzerStatus::RED;
 			audibleRedAlert();
-		} else if (thermometer->getTempStatus(tempStatus) == "AMBER"
-				|| (humidity->getHumStatus(humStatus)) == "AMBER") {
+		} else if (tempStatus == TemperatureStatus::AMBER || humStatus == HumidityStatus::AMBER) {
 			audibleAmberAlert();
+			this->buzzerStatus = BuzzerStatus::AMBER;
+		} else {
+			this->buzzerStatus = BuzzerStatus::NONE;
 		}
+	} else if(buzzerSnooze == false){
+		// building is vacant
+		this->buzzerStatus = BuzzerStatus::NONE;
 	}
 	ledcWrite(channel, 0);
+}
+
+String BUZZER::getBuzzerStatus()
+{
+	if (buzzerStatus == BuzzerStatus::AMBER)
+	{
+		return "Amber Buzz";
+	}
+	if (buzzerStatus == BuzzerStatus::RED)
+	{
+		return "Red Buzz";
+	}
+	return "No Buzz";
+}
+
+String BUZZER::getBuzzerSnooze()
+{
+	if (buzzerSnooze)
+	{
+		return "Yes";
+	}
+	else
+	{
+		return "No";
+	}
 }

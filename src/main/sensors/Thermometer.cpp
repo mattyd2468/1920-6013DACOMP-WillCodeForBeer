@@ -22,7 +22,6 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 
 	if (potVal >= 18 && potVal <= 23)
 	{ // If the value is between 18 and 23 degrees - GREEN
-		led->currentColour = LEDColour::GREEN;
 		led->currentTempStatus = TemperatureStatus::GREEN;
 		if (led->tempStatusHasChanged())
 		{
@@ -33,7 +32,6 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 	}
 	else if (potVal >= 16 && potVal <= 27)
 	{ // If the value is between 16 and 27 degrees - YELLOW
-		led->currentColour = LEDColour::YELLOW;
 		led->currentTempStatus = TemperatureStatus::AMBER;
 
 		if (led->tempStatusHasChanged())
@@ -45,7 +43,6 @@ TemperatureStatus Thermometer::calculateStatus(double potVal, LED *led)
 	}
 	else
 	{ // Otherwise - RED
-		led->currentColour = LEDColour::RED;
 		led->currentTempStatus = TemperatureStatus::RED;
 
 		if (led->tempStatusHasChanged())
